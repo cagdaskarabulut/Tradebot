@@ -1,0 +1,1021 @@
+{% extends 'trade/template.html' %}
+{% load static %}
+
+{% block header_baslik %}
+    Trade Bot by Cagdas
+{% endblock  %}
+
+{% block header_content %}
+{% endblock  %}
+
+{% block body_content %}
+<div class="col-sm-12">
+	<ul class="nav nav-pills nav-fill">
+		<li class="nav-item">
+		  <a class="nav-link active" style="background-color:#007bff;color:white;" href="{% url 'mainPage'%}">Anasayfa</a>
+		</li>
+        <li class="nav-item">
+			<a class="nav-link" style="color:#007bff" href="{% url 'activeTrades'%}">Aktif İşlemler</a>
+		</li>
+		<li class="nav-item">
+			<a class="nav-link" style="color:#007bff" href="{% url 'chart'%}">Grafikler</a>
+		</li>
+		<li class="nav-item">
+			<a class="nav-link" style="color:#007bff" href="{% url 'actions'%}">İşlemler ve Tarihçeler</a>
+		</li>
+	</ul>
+</div>
+
+<div class="col-sm-12">
+	<section class="blog-area section">
+		<div class="row" style="background-color:#fcf2f2;padding:1px;border:solid;border-width:3px;border-color:#ED4956">
+			<div class="col-sm-12" style="text-align:center">
+				<h4>Genel Durum USDT</h4>
+				 (Btc/Usdt:<b class="blue">{{btcusdt|floatformat}}</b> (Ema:<b style="color:blue">{{lastEma20DayBTCPrice|floatformat}}</b>({{lastEma20DayBTCPriceForBuy|floatformat}}/{{lastEma20DayBTCPriceLower5Perc|floatformat}}/<b style="color:red">{{lastEma20DayBTCPriceLower10Perc|floatformat}}</b>) )   Usdt/Try:<b>{{usdtl|floatformat}}</b>)
+			</div>
+			<div class="col-sm-12" style="text-align:center;border:solid;border-width:1px;border-color:#ED4956">
+				<table style="border:none" width=100%>
+					<tr>
+						<td style="text-align:center">
+							Başlangıç Toplam: <b class="blue">{{commonTotalStartMoneyAsUSDT|floatformat}}</b>
+						</td>
+						<td style="text-align:center">
+							Oto. Anlık Toplam: <b class="blue">{{allTotalNew|floatformat}}</b>
+						</td>
+						<td style="text-align:center">
+							Kar/Zarar:<b class="{% if commonUSDTDiff > 0 %}green{% endif %}{% if commonUSDTDiff < 0 %}red{% endif %}">{{commonUSDTDiff|floatformat}}</b>
+							(Takip:<b class="{% if resettedDraftUsdtDiff > 0 %}green{% endif %}{% if resettedDraftUsdtDiff < 0 %}red{% endif %}">{{resettedDraftUsdtDiff|floatformat}} / {{temp_draftUsdtDiffDateAction|date:"Y-m-d H:i"}}</b>  <a href="{% url 'resetDraftUsdtDiffAction'%}"><span class="glyphicon glyphicon-refresh"></span></a>)
+						</td>
+						<td style="text-align:center">
+							Kar/Zarar Oranı:<b class="{% if commonPercentageUSDT > 0 %}green{% endif %}{% if commonPercentageUSDT < 0 %}red{% endif %}">%{{commonPercentageUSDT|floatformat}}</b>
+						</td>
+					</tr>
+				</table>
+			</div>
+			<div class="col-sm-12" style="text-align:center">
+				<h4>Genel Durum TL</h4>
+			</div>
+			<div class="col-sm-12" style="text-align:center;border:solid;border-width:1px;border-color:#ED4956">
+				<table style="border:none" width=100%>
+					<tr>
+						<td style="text-align:center">
+							Başlangıç Toplam TL: <b class="blue">{{commonTotalStartMoneyAsTL|floatformat}}</b>
+						</td>
+						<td style="text-align:center">
+							Oto. Anlık Toplam TL: <b class="blue">{{allTotalTLNew|floatformat}}</b>
+						</td>
+						<td style="text-align:center">
+							Kar/Zarar Genel Toplam TL:<b class="{% if commonTLDiff > 0 %}green{% endif %}{% if commonTLDiff < 0 %}red{% endif %}">{{commonTLDiff|floatformat}}</b>
+						</td>
+						<td style="text-align:center">
+							Kar/Zarar Oranı Genel Toplam TL:<b class="{% if commonPercentageTL > 0 %}green{% endif %}{% if commonPercentageTL < 0 %}red{% endif %}">%{{commonPercentageTL|floatformat}}</b>
+						</td>
+					</tr>
+				</table>
+			</div>
+		</div>
+		
+		<div class="row">
+			<div class="col-sm-6" style="background-color:#e3f2fc;padding:5px;border:solid;border-width:3px;margin-top:5px;border-color:#1A8CD8;">
+				<div class="col-sm-12" style="text-align:center">
+					<h4>Detaylar</h4>
+				</div>
+				<div class="row" style="margin:1px">
+					<div class="col-sm-12" style="text-align:center">
+						<b>Robot Orjinal</b>
+					</div>
+					<div class="col-sm-12" style="border:solid;border-width:1px;border-color:#1A8CD8;">
+						<table style="border:none" width=100%>
+							<tr>
+								<td style="text-align:center">
+									Kullanılan: {{usedUsdtForRobotAsUsdt|floatformat}} <span style="font-size:12px"> (İlk Hali:{{firstUsedUsdtForRobotAsUsdt|floatformat}})</span>
+								</td>
+								<td style="text-align:center">
+									Limit/Başlangıç: <b>{{activeRobotMaxLimit|floatformat}}</b> ({{robotTotalLimit|floatformat}})/{{myPreferences.temp_startForRobotAsUsdt|floatformat}}
+								</td>
+							</tr>
+							<tr>
+								<td style="text-align:center">
+									Boşta Bekleyen USDT : <b class="blue">{{myFreeUsdt|floatformat}}</b>
+								</td>
+								<td style="text-align:center">
+									Kar/Zarar:<b class="{% if robotResultHistoryAsUsdt > 0 %}green{% endif %}{% if robotResultHistoryAsUsdt < 0 %}red{% endif %}">{{robotResultHistoryAsUsdt|floatformat}}</b>
+								</td>
+							</tr>
+							<tr>
+								<td style="text-align:center">
+									Kullanılabilecek Toplam: {{robotTotalNow|floatformat}}
+								</td>
+								<td style="text-align:center">
+									Kar/Zarar Oranı: <b class="{% if robotGainPercentageUSDT > 0 %}green{% endif %}{% if robotGainPercentageUSDT < 0 %}red{% endif %}">%{{robotGainPercentageUSDT|floatformat}}</b>
+								</td>
+							</tr>
+							<tr>
+								<td style="text-align:center">
+									Toplam Alış Sayısı/Henüz Satılmayan: <b>{{myPreferences.robotTotalBuyCount|floatformat}}</b>/{{myPreferences.getRobotNotSoldYetCount|floatformat}}
+								</td>
+								<td style="text-align:center">
+									Karlı/Zararlı Satış Sayısı: <b class="green">{{myPreferences.robotPositiveSellCount|floatformat}}</b>/<b class="red">{{myPreferences.robotNegativeSellCount|floatformat}}</b> (%{{myPreferences.getRobot4hSuccessRate|floatformat}})
+								</td>
+							</tr>
+						</table>
+					</div>
+				</div>
+				
+				<div class="row" style="margin:1px">
+					<div class="col-sm-12" style="text-align:center">
+						<b>Robot RSI_15m</b>
+					</div>
+					<div class="col-sm-12" style="border:solid;border-width:1px;border-color:#1A8CD8;">
+						<table style="border:none" width=100%>
+							<tr>
+								<td style="text-align:center">
+									Kullanılan: {{usedUsdtForRobot15mAsUsdt|floatformat}} <span style="font-size:12px"> (İlk Hali:{{firstUsedUsdtForRobot15mAsUsdt|floatformat}})</span>
+								</td>
+								<td style="text-align:center">
+									Kar/Zarar : <b class="{% if robot15mResultHistoryAsUsdt > 0 %}green{% endif %}{% if robot15mResultHistoryAsUsdt < 0 %}red{% endif %}">{{robot15mResultHistoryAsUsdt|floatformat}}</b>
+								</td>
+							</tr>
+							<tr>
+								<td style="text-align:center">
+									Limit/Başlangıç: {{maxLimitForRobot15mAsUsdt|floatformat}}/{{myPreferences.temp_startForRobot15mAsUsdt|floatformat}}
+								</td>
+								<td style="text-align:center">
+									Kar/Zarar Oranı: <b class="{% if robot15mGainPercentageUSDT > 0 %}green{% endif %}{% if robot15mGainPercentageUSDT < 0 %}red{% endif %}">%{{robot15mGainPercentageUSDT|floatformat}}</b>
+								</td>
+							</tr>
+							<tr>
+								<td style="text-align:center">
+									Toplam Alış Sayısı/Henüz Satılmayan: <b>{{myPreferences.robot15mTotalBuyCount|floatformat}}</b>/{{myPreferences.getRobot15mNotSoldYetCount|floatformat}}
+								</td>
+								<td style="text-align:center">
+									Karlı/Zararlı Satış Sayısı: <b class="green">{{myPreferences.robot15mPositiveSellCount|floatformat}}</b>/<b class="red">{{myPreferences.robot15mNegativeSellCount|floatformat}}</b> (%{{myPreferences.getRobot15mSuccessRate|floatformat}})
+								</td>
+							</tr>
+						</table>
+					</div>
+				</div>
+
+				<div class="row" style="margin:1px">
+					<div class="col-sm-12" style="text-align:center">
+						<b>Robot RSI_15m_WITHRealMargin</b>
+					</div>
+					<div class="col-sm-12" style="border:solid;border-width:1px;border-color:#1A8CD8;">
+						<table style="border:none" width=100%>
+							<tr>
+								<td style="text-align:center">
+									Kullanılan: {{usedUsdtForRobot15mWITHRealMarginAsUsdt|floatformat}} <span style="font-size:12px"> (İlk Hali:{{firstUsedUsdtForRobot15mWITHRealMarginAsUsdt|floatformat}})</span>
+								</td>
+								<td style="text-align:center">
+									Kar/Zarar : <b class="{% if robot15mWITHRealMarginResultHistoryAsUsdt > 0 %}green{% endif %}{% if robot15mWITHRealMarginResultHistoryAsUsdt < 0 %}red{% endif %}">{{robot15mWITHRealMarginResultHistoryAsUsdt|floatformat}}</b>
+								</td>
+							</tr>
+							<tr>
+								<td style="text-align:center">
+									Limit/Başlangıç: {{maxLimitForRobot15mWITHRealMarginAsUsdt|floatformat}}/{{myPreferences.temp_startForRobot15mWITHRealMarginAsUsdt|floatformat}}
+								</td>
+								<td style="text-align:center">
+									Kar/Zarar Oranı: <b class="{% if robot15mWITHRealMarginGainPercentageUSDT > 0 %}green{% endif %}{% if robot15mWITHRealMarginGainPercentageUSDT < 0 %}red{% endif %}">%{{robot15mWITHRealMarginGainPercentageUSDT|floatformat}}</b>
+								</td>
+							</tr>
+							<tr>
+								<td style="text-align:center">
+									Toplam Alış Sayısı/Henüz Satılmayan: <b>{{myPreferences.robot15mWITHRealMarginTotalBuyCount|floatformat}}</b>/{{myPreferences.getRobot15mWITHRealMarginNotSoldYetCount|floatformat}}
+								</td>
+								<td style="text-align:center">
+									Karlı/Zararlı Satış Sayısı: <b class="green">{{myPreferences.robot15mWITHRealMarginPositiveSellCount|floatformat}}</b>/<b class="red">{{myPreferences.robot15mWITHRealMarginNegativeSellCount|floatformat}}</b> (%{{myPreferences.getRobot15mWITHRealMarginSuccessRate|floatformat}})
+								</td>
+							</tr>
+						</table>
+					</div>
+				</div>
+
+				<div class="row" style="margin:1px">
+					<div class="col-sm-12" style="text-align:center">
+						<b>Robot RSI_15m_Slow</b>
+					</div>
+					<div class="col-sm-12" style="border:solid;border-width:1px;border-color:#1A8CD8;">
+						<table style="border:none" width=100%>
+							<tr>
+								<td style="text-align:center">
+									Kullanılan: {{usedUsdtForRobot15mSlowAsUsdt|floatformat}} <span style="font-size:12px"> (İlk Hali:{{firstUsedUsdtForRobot15mSlowAsUsdt|floatformat}})</span>
+								</td>
+								<td style="text-align:center">
+									Kar/Zarar : <b class="{% if robot15mSlowResultHistoryAsUsdt > 0 %}green{% endif %}{% if robot15mSlowResultHistoryAsUsdt < 0 %}red{% endif %}">{{robot15mSlowResultHistoryAsUsdt|floatformat}}</b>
+								</td>
+							</tr>
+							<tr>
+								<td style="text-align:center">
+									Limit/Başlangıç: {{maxLimitForRobot15mSlowAsUsdt|floatformat}}/{{myPreferences.temp_startForRobot15mSlowAsUsdt|floatformat}}
+								</td>
+								<td style="text-align:center">
+									Kar/Zarar Oranı: <b class="{% if robot15mSlowGainPercentageUSDT > 0 %}green{% endif %}{% if robot15mSlowGainPercentageUSDT < 0 %}red{% endif %}">%{{robot15mSlowGainPercentageUSDT|floatformat}}</b>
+								</td>
+							</tr>
+							<tr>
+								<td style="text-align:center">
+									Toplam Alış Sayısı/Henüz Satılmayan: <b>{{myPreferences.robot15mSlowTotalBuyCount|floatformat}}</b>/{{myPreferences.getRobot15mSlowNotSoldYetCount|floatformat}}
+								</td>
+								<td style="text-align:center">
+									Karlı/Zararlı Satış Sayısı: <b class="green">{{myPreferences.robot15mSlowPositiveSellCount|floatformat}}</b>/<b class="red">{{myPreferences.robot15mSlowNegativeSellCount|floatformat}}</b> (%{{myPreferences.getRobot15mSlowSuccessRate|floatformat}})
+								</td>
+							</tr>
+						</table>
+					</div>
+				</div>
+
+				<div class="row" style="margin:1px">
+					<div class="col-sm-12" style="text-align:center">
+						<b>Robot RSI_1h</b>
+					</div>
+					<div class="col-sm-12" style="border:solid;border-width:1px;border-color:#1A8CD8;">
+						<table style="border:none" width=100%>
+							<tr>
+								<td style="text-align:center">
+									Kullanılan: {{usedUsdtForRobot1hAsUsdt|floatformat}} <span style="font-size:12px"> (İlk Hali:{{firstUsedUsdtForRobot1hAsUsdt|floatformat}})</span>
+								</td>
+								<td style="text-align:center">
+									Kar/Zarar : <b class="{% if robot1hResultHistoryAsUsdt > 0 %}green{% endif %}{% if robot1hResultHistoryAsUsdt < 0 %}red{% endif %}">{{robot1hResultHistoryAsUsdt|floatformat}}</b>
+								</td>
+							</tr>
+							<tr>
+								<td style="text-align:center">
+									Limit/Başlangıç: {{maxLimitForRobot1hAsUsdt|floatformat}}/{{myPreferences.temp_startForRobot1hAsUsdt|floatformat}}
+								</td>
+								<td style="text-align:center">
+									Kar/Zarar Oranı: <b class="{% if robot1hGainPercentageUSDT > 0 %}green{% endif %}{% if robot1hGainPercentageUSDT < 0 %}red{% endif %}">%{{robot1hGainPercentageUSDT|floatformat}}</b>
+								</td>
+							</tr>
+							<tr>
+								<td style="text-align:center">
+									Toplam Alış Sayısı/Henüz Satılmayan: <b>{{myPreferences.robot1hTotalBuyCount|floatformat}}</b>/{{myPreferences.getRobot1hNotSoldYetCount|floatformat}}
+								</td>
+								<td style="text-align:center">
+									Karlı/Zararlı Satış Sayısı: <b class="green">{{myPreferences.robot1hPositiveSellCount|floatformat}}</b>/<b class="red">{{myPreferences.robot1hNegativeSellCount|floatformat}}</b> (%{{myPreferences.getRobot1hSuccessRate|floatformat}})
+								</td>
+							</tr>
+						</table>
+					</div>
+				</div>
+
+				<div class="row" style="margin:1px">
+					<div class="col-sm-12" style="text-align:center">
+						<b>Margin Robot</b>
+					</div>
+					<div class="col-sm-12" style="border:solid;border-width:1px;border-color:#1A8CD8;">
+						<table style="border:none" width=100%>
+							<tr>
+								<td style="text-align:center">
+									Kullanılan : {{usedUsdtForMarginRobotAsUsdt|floatformat}}(İlk Hali:{{firstUsedUsdtForMarginRobotAsUsdt|floatformat}})
+								</td>
+								<td style="text-align:center">
+									Kar/Zarar : <b class="{% if marginResultHistoryAsUsdt > 0 %}green{% endif %}{% if marginResultHistoryAsUsdt < 0 %}red{% endif %}">{{marginResultHistoryAsUsdt|floatformat}}</b>
+								</td>
+							</tr>
+							<tr>
+								<td style="text-align:center">
+									Limit/Başlangıç: {{marginRobotTotalLimit|floatformat}}/{{myPreferences.temp_startForMarginAsUsdt|floatformat}}
+								</td>
+								<td style="text-align:center">
+									Kar/Zarar Oranı: <b class="{% if marginGainRobotPercentageUSDT > 0 %}green{% endif %}{% if marginGainRobotPercentageUSDT < 0 %}red{% endif %}">%{{marginGainRobotPercentageUSDT|floatformat}}</b>
+								</td>
+							</tr>
+							<tr>
+								<td style="text-align:center">
+									Toplam Alış Sayısı/Henüz Satılmayan: <b>{{myPreferences.marginRobotTotalBuyCount|floatformat}}</b>/{{myPreferences.getMarginRobotNotSoldYetCount|floatformat}}
+								</td>
+								<td style="text-align:center">
+									Karlı/Zararlı Satış Sayısı: <b class="green">{{myPreferences.marginRobotPositiveSellCount|floatformat}}</b>/<b class="red">{{myPreferences.marginRobotNegativeSellCount|floatformat}}</b> (%{{myPreferences.getRobotMarginSuccessRate|floatformat}})
+								</td>
+							</tr>
+						</table>
+					</div>
+				</div>
+
+				<div class="row" style="margin:1px">
+					<div class="col-sm-12" style="text-align:center">
+						<b>MarginBTC Robot</b>
+					</div>
+					<div class="col-sm-12" style="border:solid;border-width:1px;border-color:#1A8CD8;">
+						<table style="border:none" width=100%>
+							<tr>
+								<td style="text-align:center">
+									Kullanılan : {{usedUsdtForMarginBTCRobotAsUsdt|floatformat}}(İlk Hali:{{firstUsedUsdtForMarginBTCRobotAsUsdt|floatformat}})
+								</td>
+								<td style="text-align:center">
+									Kar/Zarar : <b class="{% if marginBTCResultHistoryAsUsdt > 0 %}green{% endif %}{% if marginBTCResultHistoryAsUsdt < 0 %}red{% endif %}">{{marginBTCResultHistoryAsUsdt|floatformat}}</b>
+								</td>
+							</tr>
+							<tr>
+								<td style="text-align:center">
+									Limit/Başlangıç: {{marginBTCRobotTotalLimit|floatformat}}/{{myPreferences.temp_startForMarginBTCAsUsdt|floatformat}}
+								</td>
+								<td style="text-align:center">
+									Kar/Zarar Oranı: <b class="{% if marginBTCGainRobotPercentageUSDT > 0 %}green{% endif %}{% if marginBTCGainRobotPercentageUSDT < 0 %}red{% endif %}">%{{marginBTCGainRobotPercentageUSDT|floatformat}}</b>
+								</td>
+							</tr>
+							<tr>
+								<td style="text-align:center">
+									Toplam Alış Sayısı/Henüz Satılmayan: <b>{{myPreferences.marginBTCRobotTotalBuyCount|floatformat}}</b>/{{myPreferences.getMarginBTCRobotNotSoldYetCount|floatformat}}
+								</td>
+								<td style="text-align:center">
+									Karlı/Zararlı Satış Sayısı: <b class="green">{{myPreferences.marginBTCRobotPositiveSellCount|floatformat}}</b>/<b class="red">{{myPreferences.marginBTCRobotNegativeSellCount|floatformat}}</b> (%{{myPreferences.getRobotMarginBTCSuccessRate|floatformat}})
+								</td>
+							</tr>
+						</table>
+					</div>
+				</div>
+		
+				<div class="row" style="margin:1px" >
+					<div class="col-sm-12" style="text-align:center">
+						<b>Manuel</b>
+					</div>
+					<div class="col-sm-12" style="border:solid;border-width:1px;border-color:#1A8CD8;">
+						<table style="border:none" width=100%>
+							<tr>
+								<td style="text-align:center">
+									Manuel Alınanlar İlk Hali: {{usedUsdtForManuelOldAsUsdt|floatformat}}
+								</td>
+								<td style="text-align:center">
+									Kar/Zarar Manuel:<b class="{% if manuelUSDTDiff > 0 %}green{% endif %}{% if manuelUSDTDiff < 0 %}red{% endif %}">{{manuelUSDTDiff|floatformat}}</b>
+								</td>
+							</tr>
+							<tr>
+								<td style="text-align:center">
+									Manuel Alınanlar Son Hali: {{usedUsdtForManuelNewAsUsdt|floatformat}}
+								</td>
+								<td style="text-align:center">
+									Kar/Zarar Oranı Manuel:<b class="{% if manuelPercentageUSDT > 0 %}green{% endif %}{% if manuelPercentageUSDT < 0 %}red{% endif %}">%{{manuelPercentageUSDT|floatformat}}</b>
+								</td>
+							</tr>
+						</table>
+					</div>
+				</div>
+				<div class="row" style="margin:1px" >
+					<div class="col-sm-12" style="text-align:center">
+						<b>Kazan</b>
+					</div>
+					<div class="col-sm-12" style="border:solid;border-width:1px;border-color:#1A8CD8;">
+						<table style="border:none" width=100%>
+							<tr>
+								<td style="text-align:center">
+									Coin'ler İlk Hali: {{myOldTradeToEarn|floatformat}}
+								</td>
+								<td style="text-align:center">
+									Eski toplamı: {{myOldTotalEarn|floatformat}}
+								</td>
+							</tr>
+							<tr>
+								<td style="text-align:center">
+									Coin'ler Son Hali: {{myNewTradeToEarn|floatformat}}
+								</td>
+								<td style="text-align:center">
+									Yeni toplamı: {{myNewTotalEarn|floatformat}}
+								</td>
+							</tr>
+							<tr>
+								<td style="text-align:center">
+									Kazan bölümünde bekleyen: {{myUsdtToEarn|floatformat}}
+								</td>
+								<td style="text-align:center">
+									Kar/Zarar:<b class="{% if tradeToEarnDiffUSDT > 0 %}green{% endif %}{% if tradeToEarnDiffUSDT < 0 %}red{% endif %}">{{tradeToEarnDiffUSDT|floatformat}}</b>
+								</td>
+							</tr>
+							<tr>
+								<td style="text-align:center"> </td>
+								<td style="text-align:center">
+									Kar/Zarar Oranı:<b class="{% if tradeToEarnPercentageUSDT > 0 %}green{% endif %}{% if tradeToEarnPercentageUSDT < 0 %}red{% endif %}">%{{tradeToEarnPercentageUSDT|floatformat}}</b>
+								</td>
+							</tr>
+						</table>
+					</div>
+				</div>
+		
+				<div class="row" style="margin:1px" >
+					<div class="col-sm-12" style="text-align:center">
+						<b>Diğer</b>
+					</div>
+					<div class="col-sm-12" style="border:solid;border-width:1px;border-color:#1A8CD8;">
+						<table style="border:none" width=100%>
+							<tr>
+								<td style="text-align:center">
+									Diğer Borsalar İlk Hali: {{myOldOtherExchangeUsdt|floatformat}}
+								</td>
+								<td style="text-align:center">
+									Kar/Zarar Diğer Borsalar:<b class="{% if otherExchangeUSDTDiff > 0 %}green{% endif %}{% if otherExchangeUSDTDiff < 0 %}red{% endif %}">{{otherExchangeUSDTDiff|floatformat}}</b>
+								</td>
+							</tr>
+							<tr>
+								<td style="text-align:center">
+									Diğer Borsalar Son Hali: {{myNewOtherExchangeUsdt|floatformat}}
+								</td>
+								<td style="text-align:center">
+									Kar/Zarar Oranı Diğer B.:<b class="{% if otherExchangePercentageUSDT > 0 %}green{% endif %}{% if otherExchangePercentageUSDT < 0 %}red{% endif %}">%{{otherExchangePercentageUSDT|floatformat}}</b>
+								</td>
+							</tr>
+						</table>
+					</div>
+				</div>
+			</div>
+		
+	
+			<div class="col-sm-6" style="background-color:#f9efd1;text-align:center;border:solid;border-width:3px;margin-top:5px;margin-botton:5px;border-color:#FBBC05">
+				<div class="row" style="margin:1px">
+					<div class="col-sm-12" style="text-align:center">
+						<h4>Ayarlar</h4>
+					</div>
+					<div class="col-sm-12" style="border:solid;border-width:1px;border-color:#FBBC05">
+				
+						<table style="border:none" width=100%>
+							<tr>
+								<td colspan="2">
+									<div class="seperator" style="border-color:gray;border-width:2px;"/>
+									<div class="col-sm-12" style="text-align:center">
+										<b>Robot 4h</b>
+									</div>
+								</td>
+							</tr>
+
+							<tr style="border-bottom:solid 1px #FBBC05;">
+								<td style="text-align:center">
+									<span style="cursor: pointer;" data-toggle="tooltip" title="ALIŞ => Ema'nın %5 üzerinde alıma başlar. / SATIŞ => Ema'nın altında satışa başlar."> 
+										Durum*
+									</span>
+								</td>
+								<td style="text-align:center">
+									Çalışıyor:<span class="glyphicon {% if is4hRobotActive == True %}glyphicon-ok green{% endif %}{% if is4hRobotActive == False %}glyphicon-remove red{% endif %} "></span>
+									Aktif:<span class="glyphicon {% if myPreferences.isBuyingModeActive == True %}glyphicon-ok green{% endif %}{% if myPreferences.isBuyingModeActive == False %}glyphicon-remove red{% endif %} "></span> / <span class="glyphicon {% if myPreferences.isSellingModeActive == True %}glyphicon-ok green{% endif %}{% if myPreferences.isSellingModeActive == False %}glyphicon-remove red{% endif %} "></span>
+									Bütçe:{{firstUsedUsdtForRobotAsUsdt|floatformat}}/<b>{{myPreferences.maxLimitForRobotAsUsdt|floatformat}}</b> (%{{getUsedPercentageOfRobot|floatformat}})
+								</td>
+							</tr>
+							<tr style="border-bottom:solid 1px #FBBC05;">
+								<td style="text-align:center">
+									minRSI/midRSI/maxRSI/williamR
+								</td>
+								<td style="text-align:center">
+									<b class="blue">{{activeMinRsi}}</b>({{myPreferences.minRSI|floatformat}})/<b class="blue">{{myPreferences.midRSI|floatformat}}</b>/<b class="blue">{{activeMaxRsi}}</b>({{myPreferences.maxRSI|floatformat}})/<b class="blue">{{myPreferences.williamR|floatformat}}</b>
+								</td>
+							</tr>
+							<tr style="border-bottom:solid 1px #FBBC05;">
+								<td style="text-align:center">
+									minimum kar/zarar kes
+								</td>
+								<td style="text-align:center">
+									<b class="blue">{{myPreferences.targetPercentageForSelling|floatformat}}/{{myPreferences.stopPercentageForSellingForRobot15m|floatformat}}</b>
+								</td>
+							</tr>
+							<tr style="border-bottom:solid 1px #FBBC05;">
+								<td style="text-align:center">
+									Son çalışma saati
+								</td>
+								<td style="text-align:center">
+									<b class="blue">{{myPreferences.lastRobotWorkingDate|date:"Y-m-d H:i"}}</b>
+								</td>
+							</tr>
+							<tr>
+								<td style="text-align:center">
+									Alıma başlama zamanı
+								</td>
+								<td style="text-align:center">
+									<b class="blue">{{stopBuyingFinishFor4h|date:"Y-m-d H:i"}}</b>
+								</td>
+							</tr>
+							
+							<tr>
+								<td colspan="2">
+									<div class="seperator" style="border-color:gray;border-width:2px;"/>
+									<div class="col-sm-12" style="text-align:center">
+										<b>Robot 15m</b>
+									</div>
+								</td>
+							</tr>
+							<tr style="border-bottom:solid 1px #FBBC05;">
+								<td style="text-align:center">
+									<span style="cursor: pointer;" data-toggle="tooltip" title="ALIŞ => Ema'nın üzerinde alıma başlar. / SATIŞ => Ema'nın %5 altında satışa başlar."> 
+										Durum*
+									</span>
+								</td>
+								<td style="text-align:center">
+									Çalışıyor:<span class="glyphicon {% if is15mRobotActive == True %}glyphicon-ok green{% endif %}{% if is15mRobotActive == False %}glyphicon-remove red{% endif %} "></span>
+									Aktif:<span class="glyphicon {% if myPreferences.isRobot15mActive == True %}glyphicon-ok green{% endif %}{% if myPreferences.isRobot15mActive == False %}glyphicon-remove red{% endif %} "></span>
+									Bütçe:{{firstUsedUsdtForRobot15mAsUsdt|floatformat}}/<b>{{myPreferences.maxLimitForRobot15mAsUsdt|floatformat}}</b> (%{{getUsedPercentageOfRobot15m|floatformat}})
+								</td>
+							</tr>
+							<tr style="border-bottom:solid 1px #FBBC05;">
+								<td style="text-align:center">
+									minRSI/maxRSI
+								</td>
+								<td style="text-align:center">
+									{{myPreferences.minRSIForLong|floatformat}}/{{myPreferences.maxRSIForLong|floatformat}}
+								</td>
+							</tr>
+							<tr style="border-bottom:solid 1px #FBBC05;">
+								<td style="text-align:center">
+									minimum kar/zarar kes
+								</td>
+								<td style="text-align:center">
+									<b class="blue">{{myPreferences.targetPercentageForSellingForRobot15m|floatformat}}/{{myPreferences.stopPercentageForSellingForRobot15m|floatformat}}</b>
+								</td>
+							</tr>
+							<tr style="border-bottom:solid 1px #FBBC05;">
+								<td style="text-align:center">
+									Öngörülen satış saati
+								</td>
+								<td style="text-align:center">
+									<b class="blue">{{myPreferences.givenLimitHoursForRobot15mThenTryToSell|floatformat}}</b>
+								</td>
+							</tr>
+							<tr style="border-bottom:solid 1px #FBBC05;">
+								<td style="text-align:center">
+									Son çalışma saati
+								</td>
+								<td style="text-align:center">
+									<b class="blue">{{myPreferences.lastRobot15mWorkingDate|date:"Y-m-d H:i"}}</b>
+								</td>
+							</tr>
+							<tr>
+								<td style="text-align:center">
+									Alıma başlama zamanı
+								</td>
+								<td style="text-align:center">
+									<b class="blue">{{stopBuyingFinishFor15m|date:"Y-m-d H:i"}}</b>
+								</td>
+							</tr>
+
+							<tr>
+								<td colspan="2">
+									<div class="seperator" style="border-color:gray;border-width:2px;"/>
+									<div class="col-sm-12" style="text-align:center">
+										<b>Robot 15m With Real Margin</b>
+									</div>
+								</td>
+							</tr>
+							<tr style="border-bottom:solid 1px #FBBC05;">
+								<td style="text-align:center">
+									<span style="cursor: pointer;" data-toggle="tooltip" title="ALIŞ => Ema'nın üzerinde alıma başlar. / SATIŞ => Ema'nın %5 altında satışa başlar."> 
+										Durum*
+									</span>
+								</td>
+								<td style="text-align:center">
+									Çalışıyor:<span class="glyphicon {% if is15mWITHRealMarginRobotActive == True %}glyphicon-ok green{% endif %}{% if is15mWITHRealMarginRobotActive == False %}glyphicon-remove red{% endif %} "></span>
+									Aktif:<span class="glyphicon {% if myPreferences.isRobot15mWITHRealMarginActive == True %}glyphicon-ok green{% endif %}{% if myPreferences.isRobot15mWITHRealMarginActive == False %}glyphicon-remove red{% endif %} "></span>
+									Bütçe:{{firstUsedUsdtForRobot15mWITHRealMarginAsUsdt|floatformat}}/<b>{{myPreferences.maxLimitForRobot15mWITHRealMarginAsUsdt|floatformat}}</b> (%{{getUsedPercentageOfRobot15mWITHRealMargin|floatformat}})
+								</td>
+							</tr>
+							<tr style="border-bottom:solid 1px #FBBC05;">
+								<td style="text-align:center">
+									minRSI/maxRSI
+								</td>
+								<td style="text-align:center">
+									{{myPreferences.minRSIFor15mWITHRealMargin|floatformat}}/{{myPreferences.maxRSIFor15mWITHRealMargin|floatformat}}
+								</td>
+							</tr>
+							<tr style="border-bottom:solid 1px #FBBC05;">
+								<td style="text-align:center">
+									minimum kar/zarar kes
+								</td>
+								<td style="text-align:center">
+									<b class="blue">{{myPreferences.targetPercentageForSellingForRobot15m|floatformat}}/{{myPreferences.stopPercentageForSellingForRobot15m|floatformat}}</b>
+								</td>
+							</tr>
+							<tr style="border-bottom:solid 1px #FBBC05;">
+								<td style="text-align:center">
+									Öngörülen satış saati
+								</td>
+								<td style="text-align:center">
+									<b class="blue">{{myPreferences.givenLimitHoursForRobot15mThenTryToSell|floatformat}}</b>
+								</td>
+							</tr>
+							<tr style="border-bottom:solid 1px #FBBC05;">
+								<td style="text-align:center">
+									Son çalışma saati
+								</td>
+								<td style="text-align:center">
+									<b class="blue">{{myPreferences.lastRobot15mWITHRealMarginWorkingDate|date:"Y-m-d H:i"}}</b>
+								</td>
+							</tr>
+							<tr>
+								<td style="text-align:center">
+									Alıma başlama zamanı
+								</td>
+								<td style="text-align:center">
+									<b class="blue">{{stopBuyingFinishFor15m|date:"Y-m-d H:i"}}</b>
+								</td>
+							</tr>
+
+							<tr>
+								<td colspan="2">
+									<div class="seperator" style="border-color:gray;border-width:2px;"/>
+									<div class="col-sm-12" style="text-align:center">
+										<b>Robot 15m Slow</b>
+									</div>
+								</td>
+							</tr>
+
+							<tr style="border-bottom:solid 1px #FBBC05;">
+								<td style="text-align:center">
+									<span style="cursor: pointer;" data-toggle="tooltip"> 
+										Durum
+									</span>
+								</td>
+								<td style="text-align:center">
+									Çalışıyor:<span class="glyphicon {% if is15mSlowRobotActive == True %}glyphicon-ok green{% endif %}{% if is15mRobotActive == False %}glyphicon-remove red{% endif %} "></span>
+									Aktif:<span class="glyphicon {% if myPreferences.isRobot15mSlowActive == True %}glyphicon-ok green{% endif %}{% if myPreferences.isRobot15mSlowActive == False %}glyphicon-remove red{% endif %} "></span>
+									Bütçe:{{firstUsedUsdtForRobot15mSlowAsUsdt|floatformat}}/<b>{{myPreferences.maxLimitForRobot15mSlowAsUsdt|floatformat}}</b> (%{{getUsedPercentageOfRobot15mSlow|floatformat}})
+								</td>
+							</tr>
+							<tr style="border-bottom:solid 1px #FBBC05;">
+								<td style="text-align:center">
+									minRSI/maxRSI
+								</td>
+								<td style="text-align:center">
+									15m: {{myPreferences.minRSIFor15mSlow|floatformat}}/{{myPreferences.maxRSIFor15mSlow|floatformat}}
+									1h: {{myPreferences.minRSIFor1hSlow|floatformat}}/{{myPreferences.maxRSIFor1hSlow|floatformat}}
+								</td>
+							</tr>
+							<tr style="border-bottom:solid 1px #FBBC05;">
+								<td style="text-align:center">
+									minimum kar/zarar kes
+								</td>
+								<td style="text-align:center">
+									<b class="blue">{{myPreferences.targetPercentageForSellingForRobot15mSlow|floatformat}}/{{myPreferences.stopPercentageForSellingForRobot15mSlow|floatformat}}</b>
+								</td>
+							</tr>
+							<tr style="border-bottom:solid 1px #FBBC05;">
+								<td style="text-align:center">
+									Öngörülen satış saati
+								</td>
+								<td style="text-align:center">
+									<b class="blue">{{myPreferences.givenLimitHoursForRobot15mSlowThenTryToSell|floatformat}}</b>
+								</td>
+							</tr>
+							<tr style="border-bottom:solid 1px #FBBC05;">
+								<td style="text-align:center">
+									Son çalışma saati
+								</td>
+								<td style="text-align:center">
+									<b class="blue">{{myPreferences.lastRobot15mSlowWorkingDate|date:"Y-m-d H:i"}}</b>
+								</td>
+							</tr>
+							<tr>
+								<td style="text-align:center">
+									Alıma başlama zamanı
+								</td>
+								<td style="text-align:center">
+									<b class="blue">{{stopBuyingFinishFor15mSlow|date:"Y-m-d H:i"}}</b>
+								</td>
+							</tr>
+
+							<tr>
+								<td colspan="2">
+									<div class="seperator" style="border-color:gray;border-width:2px;"/>
+									<div class="col-sm-12" style="text-align:center">
+										<b>Robot 1h</b>
+									</div>
+								</td>
+							</tr>
+
+							<tr style="border-bottom:solid 1px #FBBC05;">
+								<td style="text-align:center">
+									<span style="cursor: pointer;" data-toggle="tooltip" > 
+										Durum*
+									</span>
+								</td>
+								<td style="text-align:center">
+									Çalışıyor:<span class="glyphicon {% if is1hRobotActive == True %}glyphicon-ok green{% endif %}{% if is1hRobotActive == False %}glyphicon-remove red{% endif %} "></span>
+									Aktif:<span class="glyphicon {% if myPreferences.isRobot1hActive == True %}glyphicon-ok green{% endif %}{% if myPreferences.isRobot1hActive == False %}glyphicon-remove red{% endif %} "></span>
+									Bütçe:{{firstUsedUsdtForRobot1hAsUsdt|floatformat}}/<b>{{myPreferences.maxLimitForRobot1hAsUsdt|floatformat}}</b> (%{{getUsedPercentageOfRobot1h|floatformat}})
+								</td>
+							</tr>
+							<tr style="border-bottom:solid 1px #FBBC05;">
+								<td style="text-align:center">
+									minRSI/maxRSI
+								</td>
+								<td style="text-align:center">
+									{{myPreferences.minRSIForRobot1h|floatformat}}/{{myPreferences.maxRSIForRobot1h|floatformat}}
+								</td>
+							</tr>
+							<tr style="border-bottom:solid 1px #FBBC05;">
+								<td style="text-align:center">
+									minimum kar/zarar kes
+								</td>
+								<td style="text-align:center">
+									<b class="blue">{{myPreferences.targetPercentageForSellingForRobot1h|floatformat}}/{{myPreferences.stopPercentageForSellingForRobot1h|floatformat}}</b>
+								</td>
+							</tr>
+							<tr style="border-bottom:solid 1px #FBBC05;">
+								<td style="text-align:center">
+									Öngörülen satış saati
+								</td>
+								<td style="text-align:center">
+									<b class="blue">{{myPreferences.givenLimitHoursForRobot1hThenTryToSell|floatformat}}</b>
+								</td>
+							</tr>
+							<tr style="border-bottom:solid 1px #FBBC05;">
+								<td style="text-align:center">
+									Son çalışma saati
+								</td>
+								<td style="text-align:center">
+									<b class="blue">{{myPreferences.lastRobot1hWorkingDate|date:"Y-m-d H:i"}}</b>
+								</td>
+							</tr>
+							<tr>
+								<td style="text-align:center">
+									Alıma başlama zamanı
+								</td>
+								<td style="text-align:center">
+									<b class="blue">{{stopBuyingFinishFor1h|date:"Y-m-d H:i"}}</b>
+								</td>
+							</tr>
+
+							<tr>
+								<td colspan="2">
+									<div class="seperator" style="border-color:gray;border-width:2px;"/>
+									<div class="col-sm-12" style="text-align:center">
+										<b>Robot Margin</b>
+									</div>
+								</td>
+							</tr>
+
+							<tr style="border-bottom:solid 1px #FBBC05;">
+								<td style="text-align:center">
+									<span style="cursor: pointer;" data-toggle="tooltip" title="ALIŞ => Ema'nın üzerindeyse ve long alım açık ise long alış yapar,Ema'nın altında ve short alım açık ise short alım yapar. Ema'nın %5 altının altındaysa ve short alım açıksa sadece btc short alım yapar / SATIŞ => Ema'nın %5 üzerindeyken elindeki BTCDOWN ları satar)"> 
+										Durum*
+									</span>
+								</td>
+								<td style="text-align:center">
+									Çalışıyor:<span class="glyphicon {% if isMarginRobotActive == True %}glyphicon-ok green{% endif %}{% if isMarginRobotActive == False %}glyphicon-remove red{% endif %} "></span>
+									Aktif:<span class="glyphicon {% if myPreferences.isMarginRobotActive == True %}glyphicon-ok green{% endif %}{% if myPreferences.isMarginRobotActive == False %}glyphicon-remove red{% endif %} "></span>
+									Bütçe:{{firstUsedUsdtForMarginRobotAsUsdt|floatformat}}/<b>{{myPreferences.maxLimitForMarginAsUsdt|floatformat}}</b> (%{{getUsedPercentageOfMarginRobot|floatformat}})
+								</td>
+							</tr>
+							<tr style="border-bottom:solid 1px #FBBC05;">
+								<td style="text-align:center;text-decoration:line-through">
+									Short minRSI/maxRSI
+								</td>
+								<td style="text-align:center;text-decoration:line-through">
+									<b class="blue">{{activeRsiFor15m}}</b>=>{{myPreferences.minRSIForShort|floatformat}}/{{myPreferences.maxRSIForShort|floatformat}}
+								</td>
+							</tr>
+							<tr style="border-bottom:solid 1px #FBBC05;text-decoration:line-through">
+								<td style="text-align:center">
+									Short minimum kar/zarar kes
+								</td>
+								<td style="text-align:center;text-decoration:line-through">
+									<b class="blue">{{myPreferences.targetPercentageForShortSellingForMargin|floatformat}}/{{myPreferences.stopPercentageForSellingForMargin|floatformat}}</b>
+								</td>
+							</tr>
+							<tr style="border-bottom:solid 1px #FBBC05">
+								<td style="text-align:center">
+									Long minRSI/maxRSI
+								</td>
+								<td style="text-align:center">
+									<b class="blue">{{activeRsiFor15m}}</b>=>{{myPreferences.minRSIForLong|floatformat}}/{{myPreferences.maxRSIForLong|floatformat}}
+								</td>
+							</tr>
+							<tr style="border-bottom:solid 1px #FBBC05;">
+								<td style="text-align:center">
+									Long minimum kar/zarar kes
+								</td>
+								<td style="text-align:center">
+									<b class="blue">{{myPreferences.targetPercentageForLongSellingForMargin|floatformat}}/{{myPreferences.stopPercentageForSellingForMargin|floatformat}}</b>
+								</td>
+							</tr>
+							<tr style="border-bottom:solid 1px #FBBC05;">
+								<td style="text-align:center">
+									Son çalışma saati
+								</td>
+								<td style="text-align:center">
+									<b class="blue">{{myPreferences.lastMarginRobotWorkingDate|date:"Y-m-d H:i"}}</b>
+								</td>
+							</tr>
+							<tr style="border-bottom:solid 1px #FBBC05;">
+								<td style="text-align:center">
+									Öngörülen satış saati
+								</td>
+								<td style="text-align:center">
+									<b class="blue">{{myPreferences.givenLimitHoursForRobotMarginThenTryToSell|floatformat}}</b>
+								</td>
+							</tr>
+							<tr>
+								<td style="text-align:center">
+									Alıma başlama zamanı
+								</td>
+								<td style="text-align:center">
+									<b class="blue">{{stopBuyingFinishForMargin|date:"Y-m-d H:i"}}</b>
+								</td>
+							</tr>
+
+							<tr>
+								<td colspan="2">
+									<div class="seperator" style="border-color:gray;border-width:2px;"/>
+									<div class="col-sm-12" style="text-align:center">
+										<b>Robot MarginBTC</b>
+									</div>
+								</td>
+							</tr>
+							<tr style="border-bottom:solid 1px #FBBC05;">
+								<td style="text-align:center">
+									<span> 
+										Durum
+									</span>
+								</td>
+								<td style="text-align:center">
+									Çalışıyor:<span class="glyphicon {% if myPreferences.isMarginBTCRobotActive == True %}glyphicon-ok green{% endif %}{% if myPreferences.isMarginBTCRobotActive == False %}glyphicon-remove red{% endif %} "></span>
+									Aktif:<span class="glyphicon {% if myPreferences.isMarginBTCRobotActive == True %}glyphicon-ok green{% endif %}{% if myPreferences.isMarginBTCRobotActive == False %}glyphicon-remove red{% endif %} "></span>
+									Bütçe:{{firstUsedUsdtForMarginBTCRobotAsUsdt|floatformat}}/<b>{{myPreferences.maxLimitForMarginBTCAsUsdt|floatformat}}</b> (%{{getUsedPercentageOfMarginBTCRobot|floatformat}})
+								</td>
+							</tr>
+							<tr style="border-bottom:solid 1px #FBBC05;">
+								<td style="text-align:center">
+									Long minRSI/maxRSI
+								</td>
+								<td style="text-align:center">
+									<b class="blue">{{activeRsiFor15m}}</b>=>{{myPreferences.minRSIForLongForBTC|floatformat}}/{{myPreferences.maxRSIForLongForBTC|floatformat}}
+								</td>
+							</tr>
+							<tr style="border-bottom:solid 1px #FBBC05;">
+								<td style="text-align:center">
+									Long - minimum kar/zarar kes
+								</td>
+								<td style="text-align:center">
+									<b class="blue">{{myPreferences.targetPercentageForSellingForRobotBTC|floatformat}}/{{myPreferences.stopPercentageForSellingForMarginBTC|floatformat}}</b>
+								</td>
+							</tr>
+							<tr style="border-bottom:solid 1px #FBBC05;">
+								<td style="text-align:center">
+									Son çalışma saati
+								</td>
+								<td style="text-align:center">
+									<b class="blue">{{myPreferences.lastMarginBTCRobotWorkingDate|date:"Y-m-d H:i"}}</b>
+								</td>
+							</tr>
+							<tr style="border-bottom:solid 1px #FBBC05;">
+								<td style="text-align:center">
+									Öngörülen satış saati
+								</td>
+								<td style="text-align:center">
+									<b class="blue">{{myPreferences.givenLimitHoursForRobotMarginThenTryToSell|floatformat}}</b>
+								</td>
+							</tr>
+							<tr>
+								<td style="text-align:center">
+									Alıma başlama zamanı
+								</td>
+								<td style="text-align:center">
+									<b class="blue">{{stopBuyingFinishForMarginBTC|date:"Y-m-d H:i"}}</b>
+								</td>
+							</tr>
+
+
+
+
+
+
+							<tr>
+								<td colspan="2">
+									<div class="seperator" style="border-color:gray;border-width:2px;"/>
+									<div class="col-sm-12" style="text-align:center">
+										<b>Diğer</b>
+									</div>
+								</td>
+							</tr>
+
+							<tr style="border-bottom:solid 1px #FBBC05;">
+								<td style="text-align:center">
+									<span style="cursor: pointer;" data-toggle="tooltip" title="Btc fiyatına göre ema 20 günlüğün fiyatı ema 50 günlük fiyatının altındaysa ve mevcut btc fiyatı ema 50 günlüğün üzerine çıktıysa pahalı olmuş demektir "> 
+										Hala ucuz mu?*
+									</span>
+								</td>
+								<td style="text-align:center;font-size:12px">
+									<span style="font-size:14px" class="glyphicon {% if isStillCheap == True %}glyphicon-ok green{% endif %}"></span> =>
+									{% if lastEma20DayBTCPrice < lastEma50DayBTCPrice %}
+										<b class="red" >
+									{% else %}
+										<b class="green" >
+									{% endif %}
+										{{lastEma20DayBTCPrice|floatformat}}(ema20) < {{lastEma50DayBTCPrice|floatformat}}(ema50)</b> olduğunda  
+									<br/>
+									{% if btcusdt > lastEma50DayBTCPrice %}
+										<b class="red" >
+									{% else %}
+										<b class="green" >
+									{% endif %}
+										{{btcusdt|floatformat}}(btc fiyatı) >{{lastEma50DayBTCPrice|floatformat}}(ema50)</b> ise <span style="text-decoration-line: underline;text-decoration-style: double;">ucuz değildir</span>
+								</td>
+							</tr>
+							<tr style="border-bottom:solid 1px #FBBC05;">
+								<td style="text-align:center">
+									Anlık çalışan robot var mı?
+								</td>
+								<td style="text-align:center">
+									<span class="glyphicon {% if myPreferences.temp_isRobotWorkingNow == True %}glyphicon-ok green{% endif %}{% if myPreferences.temp_isRobotWorkingNow == False %}glyphicon-remove red{% endif %} "></span>
+								</td>
+							</tr>
+							<tr style="border-bottom:solid 1px #FBBC05;">
+								<td style="text-align:center">
+									Bütçe btc üst hedefi ve sonrasında alınacak tutar
+								</td>
+								<td style="text-align:center">
+									{{myPreferences.addBudgetToRobotWhenTargetToTopComes_BtcTargetArea|floatformat}}/{{myPreferences.addBudgetToRobotWhenTargetToTopComes_AddBudget|floatformat}}
+								</td>
+							</tr>
+							<tr style="border-bottom:solid 1px #FBBC05;">
+								<td style="text-align:center">
+									Ema uyarı başlama tarihi
+								</td>
+								<td style="text-align:center">
+									{{myPreferences.temp_emaLowWarningStartDate|date:"Y-m-d H:i"}}
+								</td>
+							</tr>
+							<tr style="border-bottom:solid 1px #FBBC05;">
+								<td style="text-align:center">
+									Ema kontrolü açık mı? (Alım yaparken)
+								</td>
+								<td style="text-align:center">
+									<span class="glyphicon {% if myPreferences.isEmaControlActiveForBuying == True %}glyphicon-ok green{% endif %}{% if myPreferences.isEmaControlActiveForBuying == False %}glyphicon-remove red{% endif %} "></span>
+								</td>
+							</tr>
+							<tr style="border-bottom:solid 1px #FBBC05;">
+								<td style="text-align:center">
+									EMAyı geçmediyse artıdakilerin yarısını sat
+								</td>
+								<td style="text-align:center">
+									<span class="glyphicon {% if myPreferences.isSellingOneStepIfDoesntPassEMAControlModeActive == True %}glyphicon-ok green{% endif %}{% if myPreferences.isSellingOneStepIfDoesntPassEMAControlModeActive == False %}glyphicon-remove red{% endif %} "></span>
+								</td>
+							</tr>
+							<tr style="border-bottom:solid 1px #FBBC05;">
+								<td style="text-align:center">
+									Alım yaparken esnesin mi?
+								</td>
+								<td style="text-align:center">
+									<span class="glyphicon {% if myPreferences.isFlexWhileBuying == True %}glyphicon-ok green{% endif %}{% if myPreferences.isFlexWhileBuying == False %}glyphicon-remove red{% endif %} "></span>
+								</td>
+							</tr>
+							
+							<tr>
+								<td colspan="2">
+									<div class="seperator" style="border-color:gray;border-width:2px;"/>
+									<div class="col-sm-12" style="text-align:center">
+										<b>Panik Modu</b>
+									</div>
+								</td>
+							</tr>
+							<tr style="border-bottom:solid 1px #FBBC05;">
+								<td style="text-align:center">
+									Şuan açık mı?
+								</td>
+								<td style="text-align:center">
+									<span class="glyphicon {% if myPreferences.isPanicModeActive == True %}glyphicon-ok green{% endif %}{% if myPreferences.isPanicModeActive == False %}glyphicon-remove red{% endif %} "></span>
+								</td>
+							</tr>
+							<tr style="border-bottom:solid 1px #FBBC05;">
+								<td style="text-align:center">
+									Otomatik giriş açık mı?
+								</td>
+								<td style="text-align:center">
+									<span class="glyphicon {% if myPreferences.isControlForPanicMode == True %}glyphicon-ok green{% endif %}{% if myPreferences.isControlForPanicMode == False %}glyphicon-remove red{% endif %} "></span>
+								</td>
+							</tr>
+							<tr style="border-bottom:solid 1px #FBBC05;">
+								<td style="text-align:center">
+									Otomatik çıkış açık mı?
+								</td>
+								<td style="text-align:center">
+									<span class="glyphicon {% if myPreferences.isExistFromPanicModeAutomaticallyActive == True %}glyphicon-ok green{% endif %}{% if myPreferences.isExistFromPanicModeAutomaticallyActive == False %}glyphicon-remove red{% endif %} "></span>
+								</td>
+							</tr>
+							<tr style="border-bottom:solid 1px #FBBC05;">
+								<td style="text-align:center">
+									Çıkışta otomatik coin al
+								</td>
+								<td style="text-align:center">
+									<span class="glyphicon {% if myPreferences.isBuyAutomaticallyAfterPanicMode == True %}glyphicon-ok green{% endif %}{% if myPreferences.isBuyAutomaticallyAfterPanicMode == False %}glyphicon-remove red{% endif %} "></span>
+								</td>
+							</tr>
+
+							
+							<tr>
+								<td colspan="2">
+									<div class="seperator" style="border-color:gray;border-width:2px;"/>
+								</td>
+							</tr>
+						</table>
+					</div>
+				</div>
+			</div>
+		</div>
+	</section><!-- section -->
+</div>
+{% endblock  %}
+{% block javascript_content %}
+	<script>
+		$(document).ready(function() {
+			$('#tradeListTable').DataTable( {
+				"order": [[ 3, "desc" ]],
+				"lengthMenu": [[200, -1], [200, "All"]],
+				stateSave: true
+			} );
+		} );
+	</script>
+{% endblock %}

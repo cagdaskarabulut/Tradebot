@@ -1,0 +1,22 @@
+{% extends 'trade/template.html' %}
+{% load static %}
+
+{% block header_baslik %}
+    Trade Bot by Cagdas
+{% endblock  %}
+
+{% block body_content %}
+	<!--	BODY BAŞLAMA	-->
+	<div class="container-fluid ">
+		<div class="row">
+			<div id="newsId" class="col-sm-12" style="padding-top:15px;">
+				{% include "trade/trades_list.html" %}
+			</div>
+			
+		</div>
+	</div>
+	<!--	BODY BİTİŞ	-->
+	
+	<script type="text/javascript" rel="script" src="{% static "js/infinite-scroll/jquery-3.1.1.min.js" %}" > </script>
+{% endblock  %}
+

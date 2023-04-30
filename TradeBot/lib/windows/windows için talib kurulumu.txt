@@ -1,0 +1,1 @@
+Proje klasörü içindeki TA_Lib-0.4.22-cp37-cp37m-win_amd64.whl dosyası kullanılır

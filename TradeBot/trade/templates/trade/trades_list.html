@@ -1,0 +1,143 @@
+{% extends 'trade/template.html' %}
+{% load static %}
+
+{% block header_baslik %}
+    Trade Bot by Cagdas
+{% endblock  %}
+
+{% block header_content %}
+{% endblock  %}
+
+{% block body_content %}
+<div class="col-sm-12">
+	<ul class="nav nav-pills nav-fill">
+		<li class="nav-item">
+		  <a class="nav-link" style="color:#007bff" href="{% url 'mainPage'%}">Anasayfa</a>
+		</li>
+		<li class="nav-item">
+			<a  class="nav-link active" style="background-color:#007bff;color:white;" href="{% url 'activeTrades'%}">Aktif İşlemler</a>
+		</li>
+		<li class="nav-item">
+			<a class="nav-link" style="color:#007bff" href="{% url 'chart'%}">Grafikler</a>
+		</li>
+		<li class="nav-item">
+			<a class="nav-link" style="color:#007bff" href="{% url 'actions'%}">İşlemler ve Tarihçeler</a>
+		</li>
+	</ul>
+</div>
+
+<div class="col-sm-12">
+	<section class="blog-area section">
+		<div class="col-sm-12" style="margin-top:30px;overflow:scroll">
+			<table id="tradeListTable" class="display" style="width:100%">
+				<thead>
+				<tr>
+					<td></td>
+					<td>Coin</td>
+					<td>Robot Mu Aldı?</td>
+					<td>Robot Adı</td>
+					<td>Kâr</td>
+					<td>Alış Toplam USDT</td>
+					<td>Mevcut Alış Toplam</td>
+					<td>Şimdiki Toplam</td>
+					<td>Güven</td>
+					<td>Satılma</td>
+					<td>Kat</td>
+					<td>İlk Adet</td>
+					<td>Adet</td>
+					<td>Alış BTC</td>
+					<td>Alış USD</td>
+					<td>Şimdiki USDT</td>
+					<td>Fark USD</td>
+					<td>BTC Oranı</td>
+					<td>Alış Tarihi</td>
+					<td>Geçen Saat</td>
+					<td>Portföy Oranı</td>
+					<td>Kazan'da Kilitli</td>
+					<td>Farklı Borsada Mı?</td>
+					<td>Borsa Adı</td>
+					<td>Kaldıraçlı Mı?</td>
+					<td width="200">Indikatör Sonuçları</td>
+				</tr>
+				</thead>
+				<tbody>
+				{% for item in tradeList %}
+				<tr>
+					<td>{{ forloop.counter }}</td>
+					<td>{{item.coin|safe}}</td>
+					<td><span class="glyphicon {% if item.buyedByRobot is True %}glyphicon-ok green{% endif %}{% if item.buyedByRobot is False %}glyphicon-remove red{% endif %} "><b style="display:none">{{item.buyedByRobot}}</b></span></td>
+					<td>{{item.strategy|safe}}</td>
+					<td class="{% if item.temp_profitLossPercentage > 0 %}green{% endif %}{% if item.temp_profitLossPercentage < 0 %}red{% endif %}">
+						%{{item.temp_profitLossPercentage|floatformat}}
+					</td>
+					<td>{{item.getFirstBuyTotalPrice|floatformat}}</td>
+					<td><b style="color:#7f8bf4">{{item.getTotalPrice|floatformat}}</b></td>
+					<td><b class="blue">{{item.temp_totalCurrentPrice|floatformat}}</b></td>
+					<td>{{item.coin.trustRate|safe}}</td>
+					<td>{{item.howManyTimesSold|safe}}</td>
+					<td>{{item.temp_profitLossTimes|floatformat}}</td>
+					<td>{{item.firstCount|floatformat}}</td>
+					<td>{{item.count|floatformat}}</td>
+					<td>{{item.firstPriceAgainstBtc|floatformat:7}}</td>
+					<td>{{item.price|floatformat:7}}</td>
+					<td>{{item.temp_currentPrice|floatformat:7}}</td>
+					<td>{{item.temp_differenceTotalAsUSDT|floatformat}}</td>
+					<td class="{% if item.temp_differenceToBTCPercentage > 0 %}green{% endif %}{% if item.temp_differenceToBTCPercentage < 0 %}red{% endif %}">
+						%{{item.temp_differenceToBTCPercentage|floatformat}}
+					</td>
+					<td>{{item.transactionDate|date:"Y-m-d H:i"}}</td>
+					<td>{{item.getHourPassed|floatformat:"0"}}</td>
+					<td>%{{item.temp_ratioToTotalPercentage|floatformat}}</td>
+					<td><span class="glyphicon {% if item.isPassiveInEarn is True %}glyphicon-ok green{% endif %}{% if item.isPassiveInEarn is False %}glyphicon-remove red{% endif %} "></span></td>
+					<td><span class="glyphicon {% if item.isDifferentExchange is True %}glyphicon-ok green{% endif %}{% if item.isDifferentExchange is False %}glyphicon-remove red{% endif %} "></span></td>
+					<td>{{item.differentExchangeName|safe}}</td>
+					<td><span class="glyphicon {% if item.isMargin is True %}glyphicon-ok green{% endif %}{% if item.isMargin is False %}glyphicon-remove red{% endif %} "></span></td>
+					<td>{{item.indicatorResults|safe}}</td>
+				{% endfor %}
+			</tbody>
+			<tfoot>
+				<tr>
+					<td></td>
+					<td>Coin</td>
+					<td>Robot Mu Aldı?</td>
+					<td>Robot Adı</td>
+					<td>Kâr</td>
+					<td>Alış Toplam USDT</td>
+					<td>Mevcut Alış Toplam</td>
+					<td>Şimdiki Toplam</td>
+					<td>Güven</td>
+					<td>Satılma</td>
+					<td>Kat</td>
+					<td>İlk Adet</td>
+					<td>Adet</td>
+					<td>Alış BTC</td>
+					<td>Alış USD</td>
+					<td>Şimdiki USDT</td>
+					<td>Fark USD</td>
+					<td>BTC Oranı</td>
+					<td>Alış Tarihi</td>
+					<td>Geçen Saat</td>
+					<td>Portföy Oranı</td>
+					<td>Kazan'da Kilitli</td>
+					<td>Farklı Borsada Mı?</td>
+					<td>Borsa Adı</td>
+					<td>Kaldıraçlı Mı?</td>
+					<td width="200">Indikatör Sonuçları</td>
+				</tr>
+			</tfoot>
+			</table>
+		</div>
+	</section><!-- section -->
+</div>
+{% endblock  %}
+{% block javascript_content %}
+	<script>
+		$(document).ready(function() {
+			$('#tradeListTable').DataTable( {
+				"order": [[ 3, "desc" ]],
+				"lengthMenu": [[200, -1], [200, "All"]],
+				stateSave: true
+			} );
+		} );
+	</script>
+{% endblock %}

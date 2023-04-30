@@ -1,0 +1,206 @@
+{% extends 'trade/template.html' %}
+{% load static %}
+
+{% block header_baslik %}
+    Trade Bot by Cagdas
+{% endblock  %}
+
+{% block header_content %}
+{% endblock  %}
+
+
+{% block body_content %}
+
+<div class="col-sm-12">
+	<ul class="nav nav-pills nav-fill">
+		<li class="nav-item">
+		  <a class="nav-link active" style="color:#007bff" href="{% url 'mainPage'%}">Anasayfa</a>
+		</li>
+        <li class="nav-item">
+			<a class="nav-link" style="color:#007bff" href="{% url 'activeTrades'%}">Aktif İşlemler</a>
+		</li>
+		<li class="nav-item">
+			<a class="nav-link" style="color:#007bff" href="{% url 'chart'%}">Grafikler</a>
+		</li>
+		<li class="nav-item">
+			<a class="nav-link" style="background-color:#007bff;color:white;" href="{% url 'actions'%}">İşlemler ve Tarihçeler</a>
+		</li>
+	</ul>
+</div>
+
+<div class="col-sm-12" style="margin-top:10px;border:solid;border-width:4px;border-color:#ED4956;background-color:#fcf2f2;padding:15px;">
+    <div class="col-sm-12">        
+        <h3>Alım Satım İşlemleri</h3>
+    </div>
+    <div class="col-sm-2">        
+        <div class="col-sm-12" style="margin-top:15px;padding:30px;border:solid;border-width:1px;border-color:silver">
+            <p><b>Panik Modu Durumu Aktif Mi ? : <span class="glyphicon {% if myPreferences.isPanicModeActive is True %}glyphicon-ok green{% endif %}{% if myPreferences.isPanicModeActive is False %}glyphicon-remove red{% endif %} "></span><b></p>
+            <form class="form-horizontal" role="form" action="{% url 'changePanicModeAction'%}" method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-warning">{% if myPreferences.isPanicModeActive is True %}Panik Modundan Çık{% endif %}{% if myPreferences.isPanicModeActive is False %}Panik Moduna Geç{% endif %}</button>
+            </form>
+        </div>
+    </div>
+    <div class="col-sm-2">  
+        <div class="col-sm-12" style="margin-top:15px;padding:30px;border:solid;border-width:1px;border-color:silver">
+            <p><b>Robot Limit Bütçesini değiştir (+ olursa eklenir, - olursa azaltılır)<b></p>
+            <form class="form-horizontal" role="form" action="{% url 'addOrRemoveBudgetFromRobotAction'%}" method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+                <label for="firstCoinBuyWithDolar">Dolar: </label>
+                <input type="text" name="addOrRemoveBudgetFromRobot" style="width:125px;"/>
+                <br>
+                <button type="submit" class="btn btn-success">Ekle/Çıkar</button>
+            </form>
+        </div>
+    </div>
+    <div class="col-sm-2">  
+        <div class="col-sm-12" style="margin-top:15px;padding:30px;border:solid;border-width:1px;border-color:silver">
+            <p><b>Market fiyatından ve alış adetini önceliğe göre belirleyerek alış yap<b></p>
+            <form class="form-horizontal" role="form" action="{% url 'buyWithFullAutomaticallyAction'%}" method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+                <label for="firstCoinBuy">Coin seçiniz: </label>
+                <select class="form-select" aria-label="Default select example" name="firstCoinBuy"  style="width:125px;">
+                    <option selected>Bir coin seçiniz</option>
+                    {% for coin in coinList %}
+                        <option value="{{ coin.name }}">{{ coin.name }}</option>
+                    {% endfor %}
+                </select>
+                <br>
+                <button type="submit" class="btn btn-success">Satın Al</button>
+            </form>
+        </div>
+    </div>
+    <div class="col-sm-2">  
+        <div class="col-sm-12" style="margin-top:15px;padding:30px;border:solid;border-width:1px;border-color:silver">
+            <p><b>Belirlediğin dolar kadar alış yap<b></p>
+            <form class="form-horizontal" role="form" action="{% url 'buyWithDolarValueAction'%}" method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+                <label for="firstCoinBuyWithDolar">Coin seçiniz: </label>
+                <select class="form-select" aria-label="Default select example" name="firstCoinBuyWithDolar"  style="width:125px;">
+                    <option selected>Bir coin seçiniz</option>
+                    {% for coin in coinList %}
+                        <option value="{{ coin.name }}">{{ coin.name }}</option>
+                    {% endfor %}
+                </select>
+                <br>
+                <label for="your_name" style="width:100px;">Alınacak Tutar: </label>
+                <input type="text" name="firstCoinBuyValueWithDolar"  style="width:125px;"/>
+                <br>
+                <button type="submit" class="btn btn-success">Satın Al</button>
+            </form>
+        </div>
+    </div>
+    <div class="col-sm-2">  
+        <div class="col-sm-12" style="margin-top:15px;padding:30px;border:solid;border-width:1px;border-color:silver">
+            <p><b>Coin'in tamamını sat<b></p>
+            <form class="form-horizontal" role="form" action="{% url 'sellAllByCoinAction'%}" method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+                <label for="your_name" style="width:100px;">Coin seçiniz: </label>
+                <select class="form-select" aria-label="Default select example" name="firstCoinSell" >
+                    <option selected>Bir coin seçiniz</option>
+                    {% for coin in coinList %}
+                        <option value="{{ coin.name }}">{{ coin.name }}</option>
+                    {% endfor %}
+                </select>
+                <br>
+                <button type="submit" class="btn btn-warning">Sat</button>
+            </form>
+        </div>
+    </div>
+    <div class="col-sm-2">  
+        <div class="col-sm-12" style="margin-top:15px;padding:30px;border:solid;border-width:1px;border-color:silver">
+            <p><b>Trade'in tamamını sat<b></p>
+            <form class="form-horizontal" role="form" action="{% url 'sellAllByTradeAction'%}" method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+                <label for="your_name">Trade seçiniz: </label>
+                <select class="form-select" aria-label="Default select example" name="tradeToSell"  style="width:125px;">
+                    <option selected>Bir trade seçiniz</option>
+                    {% for trade in tradeList %}
+                        <option value="{{ trade.id }}">{{ trade.coin.name }} - Alış değeri:{{ trade.getFirstBuyTotalPrice }} </option>
+                    {% endfor %}
+                </select>
+                <br>
+                <button type="submit" class="btn btn-warning">Sat</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div class="col-sm-12" style="margin-top:10px;background-color:#f9f9f9;padding:5px;border:solid;border-width:3px;margin-top:5px;border-color:silver;">
+    <div class="col-sm-12">        
+        <h3>Alım Satım Tarihçesi <a href="{% url 'export_tradesHistory_xls' %}"><span class="glyphicon glyphicon-download-alt" aria-hidden="true"></span></a></h3>
+    </div>
+    <div class="col-sm-12">        
+        <div class="col-sm-12" style="margin-top:30px;overflow:scroll">
+            
+			<table id="tradeLogTable" class="display" style="width:100%">
+				<thead>
+				<tr>
+					<td></td>
+					<td>İşlem Tipi</td>
+					<td>Coin adı</td>
+                    <td>Robot Mu Aldı?</td>
+                    <td>Robot Adı</td>
+					<td>Adet</td>
+					<td>Fiyat</td>
+					<td>Toplam</td>
+                    <td>Kar/Zarar USDT</td>
+                    <td>Kar/Zarar %</td>
+                    <td>Kaç Günde/Saatte Satıldı</td>
+					<td>İşlem Tarihi</td>
+                    <td>İndikatör Sonuçları</td>
+				</tr>
+				</thead>
+				<tbody>
+				{% for item in tradeLogList %}
+				<tr>
+					<td>{{ forloop.counter }}</td>
+                    <td class="{{item.fontColorAccordingtoProcessType|safe}}">{{item.processType|safe}}</td>
+					<td>{{item.coinName|safe}}</td>
+					<td><span class="glyphicon {% if item.buyedByRobot is True %}glyphicon-ok green{% endif %}{% if item.buyedByRobot is False %}glyphicon-remove red{% endif %} "><b style="display:none">{{item.buyedByRobot}}</b></span></td>
+                    <td>{{item.strategy|safe}}</td>
+                    <td>{{item.count|floatformat:7}}</td>
+					<td>{{item.price|floatformat:7}}</td>
+					<td>{{item.getTotalPrice|floatformat:2}}</td>
+                    <td><span style="display:{% if item.gainUsdt == 0 %}none{% endif %}" class="{% if item.gainUsdt > 0 %}green{% endif %}{% if item.gainUsdt < 0 %}red{% endif %}"> {{item.gainUsdt|floatformat:2}}$</span></td>
+                    <td><span style="display:{% if item.profitLossPercentage == 0 %}none{% endif %}" class="{% if item.profitLossPercentage > 0 %}green{% endif %}{% if item.profitLossPercentage < 0 %}red{% endif %}"> %{{item.profitLossPercentage|floatformat:2}}</span></td>
+                    <td>{% if item.passedDaysToSell > 0 %}{{item.passedDaysToSell|safe}}{% endif %} {% if item.passedHoursToSell > 0 %}/{{item.passedHoursToSell|safe}}{% endif %}</td>
+					<td style="font-size:10px">{{item.transactionDate|date:"Y-m-d H:i"}}</td>
+                    <td style="font-size:7px">{{item.indicatorResults|safe}}</td>
+				{% endfor %}
+			</tbody>
+			<tfoot>
+				<tr>
+					<td></td>
+					<td>İşlem Tipi</td>
+					<td>Coin adı</td>
+                    <td>Robot Mu Aldı?</td>
+                    <td>Robot Adı</td>
+					<td>Adet</td>
+					<td>Fiyat</td>
+					<td>Toplam</td>
+                    <td>Kar/Zarar USDT</td>
+                    <td>Kar/Zarar %</td>
+                    <td>Kaç Günde/Saatte Satıldı</td>
+					<td>İşlem Tarihi</td>
+                    <td>İndikatör Sonuçları</td>
+				</tr>
+			</tfoot>
+			</table>
+    </div>
+
+</div>
+
+{% endblock  %}
+
+{% block javascript_content %}
+    <script>
+        $(document).ready(function() {
+            $('#tradeLogTable').DataTable( {
+                "order": [[ 8, "desc" ]],
+                "lengthMenu": [[200, -1], [200, "All"]],
+                stateSave: true
+            } );
+        } );
+    </script>
+{% endblock %}

@@ -1,0 +1,4 @@
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+1) brew install ta-lib
+2) xcode-select --install
+3) pip3 install TA-Lib

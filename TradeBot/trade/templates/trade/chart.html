@@ -1,0 +1,366 @@
+{% extends 'trade/template.html' %}
+{% load static %}
+
+{% block header_baslik %}
+    Trade Bot by Cagdas
+{% endblock  %}
+
+{% block header_content %}
+    <!-- semantic UI -->
+    <!-- <link rel="stylesheet" type='text/css' href="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.2.14/semantic.min.css">-->
+    <link rel="stylesheet" type="text/css" href="{% static "css/semantic-ui.css" %}" />
+    <!--Chart js-->
+    <!--<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.8.0/Chart.min.js" integrity="sha256-Uv9BNBucvCPipKQ2NS9wYpJmi8DTOEfTA/nH2aoJALw=" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.8.0/Chart.min.css" integrity="sha256-aa0xaJgmK/X74WM224KMQeNQC2xYKwlAt08oZqjeF0E=" crossorigin="anonymous" />
+    -->
+    <link rel="stylesheet" type="text/css" href="{% static "css/chart.min.css" %}" />
+    <script type="text/javascript" rel="script" src="{% static "js/chart.min.js" %}" > </script>
+
+    <script>
+        $(document).ready(function(){
+            const ctxMyChartLineForTotalCommonUsdt = document.getElementById('myChartLineForTotalCommonUsdt').getContext('2d');
+            const myChartLineForTotalCommonUsdt = new Chart(ctxMyChartLineForTotalCommonUsdt, {
+                type: 'line',
+                data: {
+                    labels: [{% for item in chartTotalBalanceHistory %}
+                                '{{item.transactionDate|date:"Y-m-d H:i"}}',
+                            {% endfor %}],
+                    datasets: [{
+                        label: 'Genel Toplam USDT',
+                        data: [{% for item in chartTotalBalanceHistory %}
+                                '{{item.totalCommonUsdt}}',
+                            {% endfor %}],
+                        backgroundColor: [
+                            'rgba(255, 99, 132, 0.2)'
+                        ],
+                        borderColor: [
+                            'rgba(255, 99, 132, 1)'
+                        ],
+                        borderWidth: 0.5
+                    }]
+                },
+                options: {
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+        
+
+            const ctxMyChartLineForTotalCommonTl = document.getElementById('myChartLineForTotalCommonTl').getContext('2d');
+            const myChartLineForTotalCommonTl = new Chart(ctxMyChartLineForTotalCommonTl, {
+                type: 'line',
+                data: {
+                    labels: [{% for item in chartTotalBalanceHistory %}
+                                '{{item.transactionDate|date:"Y-m-d H:i"}}',
+                            {% endfor %}],
+                    datasets: [{
+                        label: 'Genel Toplam TL',
+                        data: [{% for item in chartTotalBalanceHistory %}
+                                '{{item.totalCommonTl}}',
+                            {% endfor %}],
+                        backgroundColor: [
+                            'rgba(54, 162, 235, 0.2)'
+                        ],
+                        borderColor: [
+                            'rgba(54, 162, 235, 1)'
+                        ],
+                        borderWidth: 0.5
+                    }]
+                },
+                options: {
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+
+            
+            const ctxMyChartLineForTotalDetails = document.getElementById('myChartLineForTotalDetails').getContext('2d');
+            const myChartLineForTotalDetails = new Chart(ctxMyChartLineForTotalDetails, {
+                type: 'line',
+                data: {
+                    labels: [{% for item in chartTotalBalanceHistory %}
+                                '{{item.transactionDate|date:"Y-m-d H:i"}}',
+                            {% endfor %}],
+                    datasets: [{
+                        label: 'Kazan',
+                        data: [{% for item in chartTotalBalanceHistory %}
+                                '{{item.totalEarn}}',
+                            {% endfor %}],
+                        backgroundColor: [
+                            'rgb(0, 67, 255, 0)'
+                        ],
+                        borderColor: [
+                            'rgba(0, 67, 255, 1)'
+                        ],
+                        borderWidth: 0.5
+                    },{
+                        label: 'Diğer Borsalar',
+                        data: [{% for item in chartTotalBalanceHistory %}
+                                '{{item.totalOtherExchanges}}',
+                            {% endfor %}],
+                        backgroundColor: [
+                            'rgba(72, 255, 0, 0)'
+                        ],
+                        borderColor: [
+                            'rgba(72, 255, 0, 1)'
+                        ],
+                        borderWidth: 0.5
+                    }]
+                },
+                options: {
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+
+            const ctxMyChartLineForBtc = document.getElementById('myChartLineForBtc').getContext('2d');
+            const myChartLineForBtc = new Chart(ctxMyChartLineForBtc, {
+                type: 'line',
+                data: {
+                    labels: [{% for item in chartTotalBalanceHistory %}
+                                '{{item.transactionDate|date:"Y-m-d H:i"}}',
+                            {% endfor %}],
+                    datasets: [{
+                        label: 'Btc/Usdt',
+                        data: [{% for item in chartTotalBalanceHistory %}
+                                '{{item.btc}}',
+                            {% endfor %}],
+                        backgroundColor: [
+                            'rgba(13, 224, 52, 0.2)'
+                        ],
+                        borderColor: [
+                            'rgba(13, 224, 52, 1)'
+                        ],
+                        borderWidth: 0.5
+                    }]
+                },
+                options: {
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+
+            const ctxMyChartLineForRobot = document.getElementById('myChartLineForRobot').getContext('2d');
+            const myChartLineForRobot = new Chart(ctxMyChartLineForRobot, {
+                type: 'line',
+                data: {
+                    labels: [{% for item in chartTotalBalanceHistory %}
+                                '{{item.transactionDate|date:"Y-m-d H:i"}}',
+                            {% endfor %}],
+                    datasets: [{
+                        label: 'Robot',
+                        data: [{% for item in chartTotalBalanceHistory %}
+                                '{{item.robotResultHistory}}',
+                            {% endfor %}],
+                        backgroundColor: [
+                            'rgba(255, 175, 15, 0.2)'
+                        ],
+                        borderColor: [
+                            'rgba(255, 175, 15, 1)'
+                        ],
+                        borderWidth: 0.5
+                    },{
+                        label: 'Margin',
+                        data: [{% for item in chartTotalBalanceHistory %}
+                                '{{item.marginResultHistory}}',
+                            {% endfor %}],
+                        backgroundColor: [
+                            'rgba(54, 162, 235, 0)'
+                        ],
+                        borderColor: [
+                            'rgba(54, 162, 235, 1)'
+                        ],
+                        borderWidth: 0.5
+                    },{
+                        label: 'MarginBTC',
+                        data: [{% for item in chartTotalBalanceHistory %}
+                                '{{item.marginBTCResultHistory}}',
+                            {% endfor %}],
+                        backgroundColor: [
+                            'rgba(54, 162, 235, 0)'
+                        ],
+                        borderColor: [
+                            'rgba(54, 162, 235, 1)'
+                        ],
+                        borderWidth: 0.5
+                    },{
+                        label: 'Robot RSI_15m',
+                        data: [{% for item in chartTotalBalanceHistory %}
+                                '{{item.robot15mResultHistory}}',
+                            {% endfor %}],
+                        backgroundColor: [
+                            'rgba(94, 162, 235, 0)'
+                        ],
+                        borderColor: [
+                            'rgba(13, 224, 52, 1)'
+                        ],
+                        borderWidth: 0.5
+                    }]
+                },
+                options: {
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+
+
+            const ctxmyChartPieForTotalCoinPercentages = document.getElementById('myChartPieForTotalCoinPercentages').getContext('2d');
+            const myChartPieForTotalCoinPercentages = new Chart(ctxmyChartPieForTotalCoinPercentages, {
+                type: 'pie',
+                data: {
+                    labels: [{% for item in chartTradeTotalCoinPercentages %}
+                                '{{item.coin.name}} - ${{item.temp_totalCurrentPrice|floatformat}} - %{{item.temp_ratioToTotalPercentage|floatformat}}',
+                            {% endfor %}],
+                    datasets: [{
+                        label: 'Trade Edilen Coinlerin Oranı',
+                        data: [{% for item in chartTradeTotalCoinPercentages %}
+                                '{{item.temp_totalCurrentPrice}}',
+                            {% endfor %}],
+                        backgroundColor: [
+                            'rgb(247, 153, 153)',
+                            'rgb(153, 88, 88)',
+                            'rgb(206, 148, 187)',
+                            'rgb(200, 119, 234)',
+                            'rgb(149, 123, 160)',
+                            'rgb(154, 177, 237)',
+                            'rgb(144, 149, 160)',
+                            'rgb(43, 86, 196)',
+                            'rgb(130, 223, 242)',
+                            'rgb(60, 107, 117)',
+                            'rgb(142, 237, 202)',
+                            'rgb(30, 153, 108)',
+                            'rgb(139, 219, 107)',
+                            'rgb(199, 221, 108)',
+                            'rgb(221, 193, 106)',
+                            'rgb(219, 91, 41)'
+                        ],
+                        borderColor: [
+                            'rgb(247, 153, 153)',
+                            'rgb(153, 88, 88)',
+                            'rgb(206, 148, 187)',
+                            'rgb(200, 119, 234)',
+                            'rgb(149, 123, 160)',
+                            'rgb(154, 177, 237)',
+                            'rgb(144, 149, 160)',
+                            'rgb(43, 86, 196)',
+                            'rgb(130, 223, 242)',
+                            'rgb(60, 107, 117)',
+                            'rgb(142, 237, 202)',
+                            'rgb(30, 153, 108)',
+                            'rgb(139, 219, 107)',
+                            'rgb(199, 221, 108)',
+                            'rgb(221, 193, 106)',
+                            'rgb(219, 91, 41)'
+                        ],
+                        borderWidth: 0.5
+                    }]
+                },
+                options: {
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+        });
+        </script>
+
+
+{% endblock  %}
+
+{% block body_content %}
+	<!--	BODY BAŞLAMA	-->
+
+    <div class="col-sm-12">
+        <ul class="nav nav-pills nav-fill">
+            <li class="nav-item">
+              <a class="nav-link" style="color:#007bff" href="{% url 'mainPage'%}">Anasayfa</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" style="color:#007bff" href="{% url 'activeTrades'%}">Aktif İşlemler</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link active" style="background-color:#007bff;color:white;" href="{% url 'chart'%}">Grafikler</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" style="color:#007bff" href="{% url 'actions'%}">İşlemler ve Tarihçeler</a>
+            </li>
+        </ul>
+    </div>
+
+	<div class="container-fluid ">
+		<div class="row">
+            <div class="col-sm-6" style="padding:5px;border:solid;border-width:2px;border-color:silver;">
+                <div class="col-sm-12" style="text-align:center">
+                    <b>Sahip olunan coinlerin oranı</b>
+                </div>
+                <div class="col-sm-12">
+                    <canvas id="myChartPieForTotalCoinPercentages"></canvas>    
+                </div>
+            </div>
+            <div class="col-sm-6" style="padding:5px;border:solid;border-width:2px;border-color:silver;">
+                <div class="col-sm-12" style="text-align:center">
+                    <b>Btc</b>
+                </div>
+                <div class="col-sm-12">
+                    <canvas id="myChartLineForBtc"></canvas>    
+                </div>
+            </div>
+            <div class="col-sm-6" style="padding:5px;border:solid;border-width:2px;border-color:silver;">
+                <div class="col-sm-12" style="text-align:center">
+                    <b>Genel Toplam USDT</b>
+                </div>
+                <div class="col-sm-12">
+                    <canvas id="myChartLineForTotalCommonUsdt"></canvas>    
+                </div>
+            </div>
+            <div class="col-sm-6" style="padding:5px;border:solid;border-width:2px;border-color:silver;">
+                <div class="col-sm-12" style="text-align:center">
+                    <b>Genel Toplam TL</b>
+                </div>
+                <div class="col-sm-12">
+                    <canvas id="myChartLineForTotalCommonTl"></canvas>    
+                </div>
+            </div>
+            <div class="col-sm-6" style="padding:5px;border:solid;border-width:2px;border-color:silver;">
+                <div class="col-sm-12" style="text-align:center">
+                    <b>Robot ve Margin Kar/Zarar</b>
+                </div>
+                <div class="col-sm-12">
+                    <canvas id="myChartLineForRobot"></canvas>    
+                </div>
+            </div>
+            <div class="col-sm-6" style="padding:5px;border:solid;border-width:2px;border-color:silver;">
+                <div class="col-sm-12" style="text-align:center">
+                    <b>Manuel ve Diğer Borsalar</b>
+                </div>
+                <div class="col-sm-12">
+                    <canvas id="myChartLineForTotalDetails"></canvas>    
+                </div>
+            </div>
+            
+        </div>
+    </div>
+	
+{% endblock  %}
+
+
+    
+
+    
