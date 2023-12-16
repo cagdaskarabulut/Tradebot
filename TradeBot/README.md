@@ -1,7 +1,5 @@
 Tradingview ve Python sinyal stratejisi
 _______________________________________________________________
-
-
 22102022-Kararlar
 -sat verdiginde eger alim saatini x saat gecmemisse alt limite baksin eger gecmisse satsın ama eğer x saatini geçmişse kar orani 0.1'den buyukse alt bir limit beklemesin sat sinyaline bakmadan direk satsin cunku uzun surede zarar ediyor (x değeri marginlerde 2 saat, altcoinlerde 3 saat)
 -sat i 60 dan 50 ye cek 
