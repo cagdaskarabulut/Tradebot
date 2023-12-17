@@ -1793,35 +1793,35 @@ def allCoinsList():
 #    return ''
 
 def sendMail(subject,bodyField):
-    sender_email="cagdas.python@gmail.com"
-    receiver_email="cagdas.karabulut@gmail.com"
-    password='uoggxbmtuxkycudb'
-    message=MIMEMultipart("alternative")
-    message["Subject"]=subject
-    message["From"]=sender_email
-    message["To"]=receiver_email
-    html="""\
-    <html>
-    <body>
-        <p>"""+str(bodyField)+"""\
-        </p>
-    </body>
-    </html>
-    """
-    try:
-        part2=MIMEText(html, "html")
-        message.attach(part2)
-        context=ssl.create_default_context()
+    # sender_email="cagdas.python@gmail.com"
+    # receiver_email="cagdas.karabulut@gmail.com"
+    # password='uoggxbmtuxkycudb'
+    # message=MIMEMultipart("alternative")
+    # message["Subject"]=subject
+    # message["From"]=sender_email
+    # message["To"]=receiver_email
+    # html="""\
+    # <html>
+    # <body>
+    #     <p>"""+str(bodyField)+"""\
+    #     </p>
+    # </body>
+    # </html>
+    # """
+    # try:
+    #     part2=MIMEText(html, "html")
+    #     message.attach(part2)
+    #     context=ssl.create_default_context()
         
-        with smtplib.SMTP_SSL("smtp.gmail.com", 465, context=context) as server:
-            server.login(sender_email, password)
-            server.sendmail(
-                sender_email, receiver_email, message.as_string()
-            )
-    except Exception as e:
-        print(sendMail,e)
-        timet.sleep(60)
-        sendMail(subject,bodyField)
+    #     with smtplib.SMTP_SSL("smtp.gmail.com", 465, context=context) as server:
+    #         server.login(sender_email, password)
+    #         server.sendmail(
+    #             sender_email, receiver_email, message.as_string()
+    #         )
+    # except Exception as e:
+    #     print(sendMail,e)
+    #     timet.sleep(60)
+    #     sendMail(subject,bodyField)
     return ''
 
 def panicModeActivateButton():
