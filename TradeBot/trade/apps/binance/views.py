@@ -596,19 +596,25 @@ def buySignalForRobot1h(firstCoinToCompareParameter,secondCoinToCompareParameter
         coinDetailsForMailString=' R15: btc:',RSI_1h_BTC,'usdt:',RSI_1h_USDT,' - Robot RSI_15m Signal:- ',firstCoinToCompareParameter
         coinDetailsForMail = fixString(coinDetailsForMailString)
         resultMail=resultMail,' <br> ' , coinDetailsForMail
-        #if ((RSI_1h_BTC-5)<minRSI or (RSI_1h_USDT-5)<minRSI) and cooldownPassed:
-        #    nearlyBuyCoins=nearlyBuyCoins,' <br> ',firstCoinToCompareParameter,' => ', coinDetailsForMail
+        #kontrol yap
+        if minRSIControlPassed:
+            if buyingAccordingToUSDT: 
+                if activeCoin.moveRSI1hComeBackRSIValueForUsdt == 0 or activeCoin.moveRSI1hComeBackRSIValueForUsdt>RSI_1h_USDT:
+                    activeCoin.moveRSI1hComeBackRSIValueForUsdt = RSI_1h_USDT
+                    activeCoin.save()
+            if buyingAccordingToBTC: 
+                if activeCoin.moveRSI1hComeBackRSIValueForBtc == 0 or activeCoin.moveRSI1hComeBackRSIValueForBtc>RSI_1h_BTC:
+                    activeCoin.moveRSI1hComeBackRSIValueForBtc = RSI_1h_BTC
+                    activeCoin.save()
+        elif RSI_1h_USDT>50 and RSI_1h_BTC>50:
+            activeCoin.moveRSI1hComeBackRSIValueForUsdt = 0
+            activeCoin.moveRSI1hComeBackRSIValueForBtc = 0
+            activeCoin.save()
+        #islem yap
         if maxOpenTradeControlPassed and cooldownPassed and minOrMaxFivePercChangePassed: 
-            if minRSIControlPassed :
-                if buyingAccordingToUSDT: 
-                    if activeCoin.moveRSI1hComeBackRSIValueForUsdt == 0 or activeCoin.moveRSI1hComeBackRSIValueForUsdt>RSI_1h_USDT:
-                        activeCoin.moveRSI1hComeBackRSIValueForUsdt = RSI_1h_USDT
-                if buyingAccordingToBTC: 
-                    if activeCoin.moveRSI1hComeBackRSIValueForBtc == 0 or activeCoin.moveRSI1hComeBackRSIValueForBtc>RSI_1h_BTC:
-                        activeCoin.moveRSI1hComeBackRSIValueForBtc = RSI_1h_BTC
-                activeCoin.save()
-                nearlyBuyCoins=nearlyBuyCoins,' <br> ',firstCoinToCompareParameter,' => ', coinDetailsForMail
+            nearlyBuyCoins=nearlyBuyCoins,' <br> ',firstCoinToCompareParameter,' => ', coinDetailsForMail
             readyToBuy= (activeCoin.moveRSI1hComeBackRSIValueForUsdt>0 and ((RSI_1h_USDT - activeCoin.moveRSI1hComeBackRSIValueForUsdt)>myPreferences.moveRSIComeBackPercentage)) or (activeCoin.moveRSI1hComeBackRSIValueForBtc>0 and ((RSI_1h_BTC - activeCoin.moveRSI1hComeBackRSIValueForBtc)>myPreferences.moveRSIComeBackPercentage))
+            #satın al
             if readyToBuy:
                 activeCoin.moveRSI1hComeBackRSIValueForBtc=0
                 activeCoin.moveRSI1hComeBackRSIValueForUsdt=0
@@ -620,8 +626,8 @@ def buySignalForRobot1h(firstCoinToCompareParameter,secondCoinToCompareParameter
                     buyWithMarketPriceByQuantityAction(firstCoinForBuyParameter,secondCoinForBuyParameter,finalQuantity,True,'RSI_1h')
                 else :
                     signal_buy=0
-            else :
-                signal_buy=0
+        else :
+            signal_buy=0
     return signal_buy
 
 #CHECK BTC AND USDT BOTH ... DONT USE WITH CRYPTOS WHICH DOESNT HAVE VALUES TO COMPARE WITH BTC OR USDT !!!
@@ -646,7 +652,6 @@ def buySignalForRobot15m(firstCoinToCompareParameter,secondCoinToCompareParamete
         minOrMaxFivePercChangePassed=getIsMovedPercentForBuySignal(activeCoin)
         RSI_15m_BTC=int(getRSI(activeCoinToCompareForBTC,'15m',5000))
         RSI_15m_USDT=int(getRSI(activeCoinToCompareForUSDT,'15m',5000))
-        #RSI_5m_USDT=int(getRSI(activeCoinToCompareForUSDT,'5m',5000))
         minRSIControlPassed=False
         test='dontBuy'
         if RSI_15m_USDT<minRSI and RSI_15m_USDT<50 and RSI_15m_BTC<50: #and RSI_5m_USDT<minRSI 
@@ -658,23 +663,32 @@ def buySignalForRobot15m(firstCoinToCompareParameter,secondCoinToCompareParamete
         else :
             minRSIControlPassed=False
             test='dontBuy'
+        #test icin
+        if firstCoinToCompareParameter=='FIL':
+            print('RSI_15m_USDT:',RSI_15m_USDT,"   /   RSI_15m_BTC:",RSI_15m_BTC,"   /   minRSIControlPassed:",minRSIControlPassed, "   /   minRSI:",minRSI )
         coinDetailsForMailString=' test:',test,'R15: btc:',RSI_15m_BTC,'usdt:',RSI_15m_USDT,' before:btc/usdt:',activeCoin.moveRSI15mComeBackRSIValueForBtc,'/',activeCoin.moveRSI15mComeBackRSIValueForUsdt,'/',' - Robot RSI_15m Signal:- ',firstCoinToCompareParameter
-        #if ((RSI_15m_BTC-5)<minRSI or (RSI_15m_USDT-5)<minRSI) and cooldownPassed:
-        #    nearlyBuyCoins=nearlyBuyCoins,' <br> ',firstCoinToCompareParameter,' => ', fixString(coinDetailsForMailString)
+        #kontrol yap
+        if minRSIControlPassed:
+            if RSI_15m_USDT<minRSI: 
+                if activeCoin.moveRSI15mComeBackRSIValueForUsdt == 0 or activeCoin.moveRSI15mComeBackRSIValueForUsdt>RSI_15m_USDT:
+                    activeCoin.moveRSI15mComeBackRSIValueForUsdt = RSI_15m_USDT
+                    coinDetailsForMailString = 'setted usdt',coinDetailsForMailString
+                    activeCoin.save()
+            if RSI_15m_BTC<minRSI: 
+                if activeCoin.moveRSI15mComeBackRSIValueForBtc == 0 or activeCoin.moveRSI15mComeBackRSIValueForBtc>RSI_15m_BTC:
+                    activeCoin.moveRSI15mComeBackRSIValueForBtc = RSI_15m_BTC
+                    coinDetailsForMailString = 'setted btc',coinDetailsForMailString
+                    activeCoin.save()
+        elif RSI_15m_USDT>50 and RSI_15m_BTC>50:#Eğer 50 yi geçtiyse 2'si de o zaman alım yapmaya gerek yok. Geçmiş verileri temizle
+            activeCoin.moveRSI15mComeBackRSIValueForUsdt = 0
+            activeCoin.moveRSI15mComeBackRSIValueForBtc = 0
+            activeCoin.save()
+        #islem yap
         if maxOpenTradeControlPassed and cooldownPassed and minOrMaxFivePercChangePassed: 
-            if minRSIControlPassed :
-                if RSI_15m_USDT<minRSI: 
-                    if activeCoin.moveRSI15mComeBackRSIValueForUsdt == 0 or activeCoin.moveRSI15mComeBackRSIValueForUsdt>RSI_15m_USDT:
-                        activeCoin.moveRSI15mComeBackRSIValueForUsdt = RSI_15m_USDT
-                        coinDetailsForMailString = 'setted usdt',coinDetailsForMailString
-                if RSI_15m_BTC<minRSI: 
-                    if activeCoin.moveRSI15mComeBackRSIValueForBtc == 0 or activeCoin.moveRSI15mComeBackRSIValueForBtc>RSI_15m_BTC:
-                        activeCoin.moveRSI15mComeBackRSIValueForBtc = RSI_15m_BTC
-                        coinDetailsForMailString = 'setted btc',coinDetailsForMailString
-                activeCoin.save()
-                nearlyBuyCoins=nearlyBuyCoins,' <br> ',firstCoinToCompareParameter,' => ', fixString(coinDetailsForMailString)
+            nearlyBuyCoins=nearlyBuyCoins,' <br> ',firstCoinToCompareParameter,' => ', fixString(coinDetailsForMailString)
             rsiUsdtDiff = RSI_15m_USDT - activeCoin.moveRSI15mComeBackRSIValueForUsdt
             rsiBtcDiff = RSI_15m_BTC - activeCoin.moveRSI15mComeBackRSIValueForBtc
+            #satın al
             if activeCoin.moveRSI15mComeBackRSIValueForUsdt>0 and rsiUsdtDiff>myPreferences.moveRSIComeBackPercentage: 
                 coinDetailsForMailString = 'usdt sebebiyle alınacak.. sıfırlanmadan once son durum:btc/usdt',myPreferences.moveRSIComeBackPercentage,'-',activeCoin.moveRSI15mComeBackRSIValueForUsdt,'/',RSI_15m_USDT,'/',activeCoin.moveRSI15mComeBackRSIValueForBtc,'/',RSI_15m_BTC,'/',coinDetailsForMailString
                 activeCoin.moveRSI15mComeBackRSIValueForUsdt=0
@@ -741,20 +755,27 @@ def buySignalForRobot15mWITHRealMargin(firstCoinToCompareParameter,secondCoinToC
             minRSIControlPassed=False
             test='dontBuy'
         coinDetailsForMailString=' test:',test,'R15: btc:',RSI_15m_BTC,'usdt:',RSI_15m_USDT,' before:btc/usdt:',activeCoin.moveRSI15mWITHRealMarginComeBackRSIValueForBtc,'/',activeCoin.moveRSI15mWITHRealMarginComeBackRSIValueForUsdt,'/',' - Robot RSI_15m Signal:- ',firstCoinToCompareParameter
-        if maxOpenTradeControlPassed and cooldownPassed and minOrMaxFivePercChangePassed: 
-            if minRSIControlPassed :
-                if RSI_15m_USDT<minRSI: 
-                    if activeCoin.moveRSI15mWITHRealMarginComeBackRSIValueForUsdt == 0 or activeCoin.moveRSI15mWITHRealMarginComeBackRSIValueForUsdt>RSI_15m_USDT:
-                        activeCoin.moveRSI15mWITHRealMarginComeBackRSIValueForUsdt = RSI_15m_USDT
-                        coinDetailsForMailString = 'setted usdt',coinDetailsForMailString
-                if RSI_15m_BTC<minRSI: 
-                    if activeCoin.moveRSI15mWITHRealMarginComeBackRSIValueForBtc == 0 or activeCoin.moveRSI15mWITHRealMarginComeBackRSIValueForBtc>RSI_15m_BTC:
-                        activeCoin.moveRSI15mWITHRealMarginComeBackRSIValueForBtc = RSI_15m_BTC
-                        coinDetailsForMailString = 'setted btc',coinDetailsForMailString
-                activeCoin.save()
-                nearlyBuyCoins=nearlyBuyCoins,' <br> ',firstCoinToCompareParameter,' => ', fixString(coinDetailsForMailString)
+        #kontrol yap
+        if minRSIControlPassed:
+            if RSI_15m_USDT<minRSI: 
+                if activeCoin.moveRSI15mWITHRealMarginComeBackRSIValueForUsdt == 0 or activeCoin.moveRSI15mWITHRealMarginComeBackRSIValueForUsdt>RSI_15m_USDT:
+                    activeCoin.moveRSI15mWITHRealMarginComeBackRSIValueForUsdt = RSI_15m_USDT
+                    coinDetailsForMailString = 'setted usdt',coinDetailsForMailString
+            if RSI_15m_BTC<minRSI: 
+                if activeCoin.moveRSI15mWITHRealMarginComeBackRSIValueForBtc == 0 or activeCoin.moveRSI15mWITHRealMarginComeBackRSIValueForBtc>RSI_15m_BTC:
+                    activeCoin.moveRSI15mWITHRealMarginComeBackRSIValueForBtc = RSI_15m_BTC
+                    coinDetailsForMailString = 'setted btc',coinDetailsForMailString
+            activeCoin.save()
+        elif RSI_15m_USDT>50 and RSI_15m_BTC>50:#Eğer 50 yi geçtiyse 2'si de o zaman alım yapmaya gerek yok. Geçmiş verileri temizle
+            activeCoin.moveRSI15mWITHRealMarginComeBackRSIValueForUsdt = 0
+            activeCoin.moveRSI15mWITHRealMarginComeBackRSIValueForBtc = 0
+            activeCoin.save()
+        #islem yap
+        if maxOpenTradeControlPassed and cooldownPassed and minOrMaxFivePercChangePassed:
+            nearlyBuyCoins=nearlyBuyCoins,' <br> ',firstCoinToCompareParameter,' => ', fixString(coinDetailsForMailString)
             rsiUsdtDiff = RSI_15m_USDT - activeCoin.moveRSI15mWITHRealMarginComeBackRSIValueForUsdt
             rsiBtcDiff = RSI_15m_BTC - activeCoin.moveRSI15mWITHRealMarginComeBackRSIValueForBtc
+            #satın al
             if activeCoin.moveRSI15mWITHRealMarginComeBackRSIValueForUsdt>0 and rsiUsdtDiff>myPreferences.moveRSIComeBackPercentage: 
                 coinDetailsForMailString = 'usdt sebebiyle alınacak.. sıfırlanmadan once son durum:btc/usdt',myPreferences.moveRSIComeBackPercentage,'-',activeCoin.moveRSI15mWITHRealMarginComeBackRSIValueForUsdt,'/',RSI_15m_USDT,'/',activeCoin.moveRSI15mWITHRealMarginComeBackRSIValueForBtc,'/',RSI_15m_BTC,'/',coinDetailsForMailString
                 activeCoin.moveRSI15mWITHRealMarginComeBackRSIValueForUsdt=0
@@ -818,19 +839,25 @@ def buySignalForRobot15mSlow(firstCoinToCompareParameter,secondCoinToComparePara
         coinDetailsForMailString=' R15: btc:',RSI_15m_BTC,'usdt:',RSI_15m_USDT,'usdt1h:',RSI_1h_USDT,' - Robot RSI_15m Signal:- ',firstCoinToCompareParameter
         coinDetailsForMail = fixString(coinDetailsForMailString)
         resultMail=resultMail,' <br> ' , coinDetailsForMail
-        #if ((RSI_15m_BTC-5)<minRSI or (RSI_15m_USDT-5)<minRSI) and cooldownPassed:
-        #    nearlyBuyCoins=nearlyBuyCoins,' <br> ',firstCoinToCompareParameter,' => ', coinDetailsForMail
+        #kontrol yap
+        if minRSIControlPassed:
+            if buyingAccordingToUSDT: 
+                if activeCoin.moveRSI15mSlowComeBackRSIValueForUsdt == 0 or activeCoin.moveRSI15mSlowComeBackRSIValueForUsdt>RSI_15m_USDT:
+                    activeCoin.moveRSI15mSlowComeBackRSIValueForUsdt = RSI_15m_USDT
+                    activeCoin.save()
+            if buyingAccordingToBTC: 
+                if activeCoin.moveRSI15mSlowComeBackRSIValueForBtc == 0 or activeCoin.moveRSI15mSlowComeBackRSIValueForBtc>RSI_15m_BTC:
+                    activeCoin.moveRSI15mSlowComeBackRSIValueForBtc = RSI_15m_BTC
+                    activeCoin.save()
+        elif RSI_15m_USDT>50 and RSI_15m_BTC>50:#Eğer 50 yi geçtiyse 2'si de o zaman alım yapmaya gerek yok. Geçmiş verileri temizle
+            activeCoin.moveRSI15mSlowComeBackRSIValueForUsdt = 0
+            activeCoin.moveRSI15mSlowComeBackRSIValueForBtc = 0
+            activeCoin.save()
+        #islem yap
         if maxOpenTradeControlPassed and cooldownPassed and minOrMaxFivePercChangePassed: 
-            if minRSIControlPassed :
-                if buyingAccordingToUSDT: 
-                    if activeCoin.moveRSI15mSlowComeBackRSIValueForUsdt == 0 or activeCoin.moveRSI15mSlowComeBackRSIValueForUsdt>RSI_15m_USDT:
-                        activeCoin.moveRSI15mSlowComeBackRSIValueForUsdt = RSI_15m_USDT
-                if buyingAccordingToBTC: 
-                    if activeCoin.moveRSI15mSlowComeBackRSIValueForBtc == 0 or activeCoin.moveRSI15mSlowComeBackRSIValueForBtc>RSI_15m_BTC:
-                        activeCoin.moveRSI15mSlowComeBackRSIValueForBtc = RSI_15m_BTC
-                activeCoin.save()
-                nearlyBuyCoins=nearlyBuyCoins,' <br> ',firstCoinToCompareParameter,' => ', coinDetailsForMail
+            nearlyBuyCoins=nearlyBuyCoins,' <br> ',firstCoinToCompareParameter,' => ', coinDetailsForMail
             readyToBuy= (activeCoin.moveRSI15mSlowComeBackRSIValueForUsdt>0 and ((RSI_15m_USDT - activeCoin.moveRSI15mSlowComeBackRSIValueForUsdt)>myPreferences.moveRSIComeBackPercentage)) or (activeCoin.moveRSI15mSlowComeBackRSIValueForBtc>0 and ((RSI_15m_BTC - activeCoin.moveRSI15mSlowComeBackRSIValueForBtc)>myPreferences.moveRSIComeBackPercentage))
+            #satın al
             if readyToBuy:
                 activeCoin.moveRSI15mSlowComeBackRSIValueForUsdt=0
                 activeCoin.moveRSI15mSlowComeBackRSIValueForBtc=0
@@ -870,13 +897,20 @@ def buySignalForMarginLongForBtc(firstCoinToCompareParameter,secondCoinToCompare
         coinDetailsForMailString=' R15:',RSI_15m,' - MarginBTC Long Buy Signal:- ',firstCoinToCompareParameter
         coinDetailsForMail = fixString(coinDetailsForMailString)
         resultMail=resultMail,' <br> ' , coinDetailsForMail
-        if maxOpenTradeControlPassed and cooldownPassed:#and minOrMaxFivePercChangePassed
-            if minRSIControlPassed :
-                if RSI_15m<minRSI : 
-                    if activeCoin.moveRSIMarginBtcComeBackRSIValueForUsdt == 0 or activeCoin.moveRSIMarginBtcComeBackRSIValueForUsdt>RSI_15m:
-                        activeCoin.moveRSIMarginBtcComeBackRSIValueForUsdt = RSI_15m
-                activeCoin.save()
+        minOrMaxFivePercChangePassed=getIsMovedPercentForBuySignal(activeCoin)
+        #kontrol yap
+        if minRSIControlPassed:
+            if RSI_15m<minRSI : 
+                if activeCoin.moveRSIMarginBtcComeBackRSIValueForUsdt == 0 or activeCoin.moveRSIMarginBtcComeBackRSIValueForUsdt>RSI_15m:
+                    activeCoin.moveRSIMarginBtcComeBackRSIValueForUsdt = RSI_15m
+                    activeCoin.save()
+        elif RSI_15m>50:#Eğer 50 yi geçtiyse 2'si de o zaman alım yapmaya gerek yok. Geçmiş verileri temizle
+            activeCoin.moveRSIMarginBtcComeBackRSIValueForUsdt = 0
+            activeCoin.save()
+        #islem yap
+        if maxOpenTradeControlPassed and cooldownPassed and minOrMaxFivePercChangePassed:
             readyToBuy= (activeCoin.moveRSIMarginBtcComeBackRSIValueForUsdt>0 and (RSI_15m - activeCoin.moveRSIMarginBtcComeBackRSIValueForUsdt)>myPreferences.moveRSIComeBackPercentage)
+            #satın al
             if readyToBuy:
                 activeCoin.moveRSIMarginBtcComeBackRSIValueForUsdt=0
                 activeCoin.save()
@@ -912,20 +946,24 @@ def buySignalForMarginLong(firstCoinToCompareParameter,secondCoinToCompareParame
         minOrMaxFivePercChangePassed=getIsMovedPercentForBuySignal(activeCoin)
         RSI_15m_BTC=int(getRSI(activeCoinToCompareForBTC,'15m',5000))
         RSI_15m_USDT=int(getRSI(activeCoinToCompareForUSDT,'15m',5000))
-        #RSI_5m_USDT=int(getRSI(activeCoinToCompareForUSDT,'5m',5000))
-        #buyingAccordingToBTC=RSI_15m_BTC<minRSI and RSI_15m_USDT<50
         buyingAccordingToUSDT=RSI_15m_USDT<minRSI and RSI_15m_BTC<50
         minRSIControlPassed=buyingAccordingToUSDT #and RSI_5m_USDT<minRSI or buyingAccordingToBTC
         coinDetailsForMailString=' R15: btc:',RSI_15m_BTC,' usdt:',RSI_15m_USDT,' - Margin Long Buy Signal:- ',firstCoinToCompareParameter
         coinDetailsForMail = fixString(coinDetailsForMailString)
         resultMail=resultMail,' <br> ' , coinDetailsForMail
-        if maxOpenTradeControlPassed and cooldownPassed and minOrMaxFivePercChangePassed: 
-            if minRSIControlPassed :
-                if buyingAccordingToUSDT : 
-                    if activeCoin.moveRSIMarginLongComeBackRSIValueForUsdt == 0 or activeCoin.moveRSIMarginLongComeBackRSIValueForUsdt>RSI_15m_USDT:
-                        activeCoin.moveRSIMarginLongComeBackRSIValueForUsdt = RSI_15m_USDT
-                activeCoin.save()
+        #kontrol yap
+        if minRSIControlPassed:
+            if buyingAccordingToUSDT : 
+                if activeCoin.moveRSIMarginLongComeBackRSIValueForUsdt == 0 or activeCoin.moveRSIMarginLongComeBackRSIValueForUsdt>RSI_15m_USDT:
+                    activeCoin.moveRSIMarginLongComeBackRSIValueForUsdt = RSI_15m_USDT
+                    activeCoin.save()
+        elif RSI_15m_USDT>50:#Eğer 50 yi geçtiyse 2'si de o zaman alım yapmaya gerek yok. Geçmiş verileri temizle
+            activeCoin.moveRSIMarginLongComeBackRSIValueForUsdt = 0
+            activeCoin.save()
+        #islem yap
+        if maxOpenTradeControlPassed and cooldownPassed and minOrMaxFivePercChangePassed:
             readyToBuy= (activeCoin.moveRSIMarginLongComeBackRSIValueForUsdt>0 and (RSI_15m_USDT - activeCoin.moveRSIMarginLongComeBackRSIValueForUsdt)>myPreferences.moveRSIComeBackPercentage)
+            #satın al
             if readyToBuy:
                 activeCoin.moveRSIMarginLongComeBackRSIValueForUsdt=0
                 activeCoin.save()
@@ -958,15 +996,12 @@ def buySignalForMarginShort(firstCoinToCompareParameter,secondCoinToCompareParam
         coinDetailsForMailString=' R15:',RSI_15m,' - Margin Short Buy Signal:- ',firstCoinToCompareParameter
         coinDetailsForMail = fixString(coinDetailsForMailString)
         resultMail=resultMail,' <br> ' , coinDetailsForMail
-        if maxOpenTradeControlPassed and cooldownPassed and minOrMaxFivePercChangePassed: 
-            if maxRSIControlPassed:
-                if remainingUsdtToUsePassed:
-                    cleanAllPastCoinSignals(firstCoinForBuyParameter)
-                    signal_buy=1
-                    finalQuantity=minimizeNumber(findQuantityByCurrentPriceAndTrustRateToBuyForRobot15m(firstCoinForBuyParameter,secondCoinForBuyParameter))
-                    buyWithMarketPriceByQuantityAction(firstCoinForBuyParameter,secondCoinForBuyParameter,finalQuantity,True,'Margin_RSI_15m')
-                else :
-                    signal_buy=0
+        if maxOpenTradeControlPassed and cooldownPassed and maxRSIControlPassed and minOrMaxFivePercChangePassed: 
+            if remainingUsdtToUsePassed:
+                cleanAllPastCoinSignals(firstCoinForBuyParameter)
+                signal_buy=1
+                finalQuantity=minimizeNumber(findQuantityByCurrentPriceAndTrustRateToBuyForRobot15m(firstCoinForBuyParameter,secondCoinForBuyParameter))
+                buyWithMarketPriceByQuantityAction(firstCoinForBuyParameter,secondCoinForBuyParameter,finalQuantity,True,'Margin_RSI_15m')
             else :
                 signal_buy=0
     return signal_buy
@@ -1793,35 +1828,35 @@ def allCoinsList():
 #    return ''
 
 def sendMail(subject,bodyField):
-    # sender_email="cagdas.python@gmail.com"
-    # receiver_email="cagdas.karabulut@gmail.com"
-    # password='uoggxbmtuxkycudb'
-    # message=MIMEMultipart("alternative")
-    # message["Subject"]=subject
-    # message["From"]=sender_email
-    # message["To"]=receiver_email
-    # html="""\
-    # <html>
-    # <body>
-    #     <p>"""+str(bodyField)+"""\
-    #     </p>
-    # </body>
-    # </html>
-    # """
-    # try:
-    #     part2=MIMEText(html, "html")
-    #     message.attach(part2)
-    #     context=ssl.create_default_context()
+    sender_email="cagdas.python@gmail.com"
+    receiver_email="cagdas.karabulut@gmail.com"
+    password='uoggxbmtuxkycudb'
+    message=MIMEMultipart("alternative")
+    message["Subject"]=subject
+    message["From"]=sender_email
+    message["To"]=receiver_email
+    html="""\
+    <html>
+    <body>
+        <p>"""+str(bodyField)+"""\
+        </p>
+    </body>
+    </html>
+    """
+    try:
+        part2=MIMEText(html, "html")
+        message.attach(part2)
+        context=ssl.create_default_context()
         
-    #     with smtplib.SMTP_SSL("smtp.gmail.com", 465, context=context) as server:
-    #         server.login(sender_email, password)
-    #         server.sendmail(
-    #             sender_email, receiver_email, message.as_string()
-    #         )
-    # except Exception as e:
-    #     print(sendMail,e)
-    #     timet.sleep(60)
-    #     sendMail(subject,bodyField)
+        with smtplib.SMTP_SSL("smtp.gmail.com", 465, context=context) as server:
+            server.login(sender_email, password)
+            server.sendmail(
+                sender_email, receiver_email, message.as_string()
+            )
+    except Exception as e:
+        print(sendMail,e)
+        timet.sleep(60)
+        sendMail(subject,bodyField)
     return ''
 
 def panicModeActivateButton():
@@ -3380,7 +3415,7 @@ def run_robot_15m():
             activeCoin=activeTrade.coin
             sellSignalForRobot15m(activeCoin.name,activeCoin.preferredCompareCoinName,activeCoin.name,'USDT',activeTrade)
         #BUY
-        if getIsStillCheap() is True and (myPreferences.robot15mResultHistoryAsUsdt > myPreferences.lossLimitForRobot15m) and isEmaHigherThanBTCPrice==1 and myPreferences.stopBuyingDateFor15m is None:#and isEmaHigherThan4hBTCPrice==1
+        if getIsStillCheap() is True and (myPreferences.robot15mResultHistoryAsUsdt > myPreferences.lossLimitForRobot15m) and myPreferences.stopBuyingDateFor15m is None:# and isEmaHigherThanBTCPrice==1
             coinList=Coin.objects.filter(openToBuy=True,isActive=True,isMargin=False,isUsableForRSI15m=True)
             for activeCoin in coinList:
                 if maxLimitToBuy>boughtCoinsTotalUsdt:
