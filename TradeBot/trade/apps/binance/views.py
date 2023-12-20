@@ -663,9 +663,6 @@ def buySignalForRobot15m(firstCoinToCompareParameter,secondCoinToCompareParamete
         else :
             minRSIControlPassed=False
             test='dontBuy'
-        #test icin
-        if firstCoinToCompareParameter=='FIL':
-            print('RSI_15m_USDT:',RSI_15m_USDT,"   /   RSI_15m_BTC:",RSI_15m_BTC,"   /   minRSIControlPassed:",minRSIControlPassed, "   /   minRSI:",minRSI )
         coinDetailsForMailString=' test:',test,'R15: btc:',RSI_15m_BTC,'usdt:',RSI_15m_USDT,' before:btc/usdt:',activeCoin.moveRSI15mComeBackRSIValueForBtc,'/',activeCoin.moveRSI15mComeBackRSIValueForUsdt,'/',' - Robot RSI_15m Signal:- ',firstCoinToCompareParameter
         #kontrol yap
         if minRSIControlPassed:
@@ -673,18 +670,19 @@ def buySignalForRobot15m(firstCoinToCompareParameter,secondCoinToCompareParamete
                 if activeCoin.moveRSI15mComeBackRSIValueForUsdt == 0 or activeCoin.moveRSI15mComeBackRSIValueForUsdt>RSI_15m_USDT:
                     activeCoin.moveRSI15mComeBackRSIValueForUsdt = RSI_15m_USDT
                     coinDetailsForMailString = 'setted usdt',coinDetailsForMailString
-                    activeCoin.save()
             if RSI_15m_BTC<minRSI: 
                 if activeCoin.moveRSI15mComeBackRSIValueForBtc == 0 or activeCoin.moveRSI15mComeBackRSIValueForBtc>RSI_15m_BTC:
                     activeCoin.moveRSI15mComeBackRSIValueForBtc = RSI_15m_BTC
                     coinDetailsForMailString = 'setted btc',coinDetailsForMailString
-                    activeCoin.save()
-        elif RSI_15m_USDT>50 and RSI_15m_BTC>50:#Eğer 50 yi geçtiyse 2'si de o zaman alım yapmaya gerek yok. Geçmiş verileri temizle
+        elif RSI_15m_USDT>40 and RSI_15m_BTC>40:#Eğer 40 yi geçtiyse 2'si de o zaman alım yapmaya gerek yok. Geçmiş verileri temizle
             activeCoin.moveRSI15mComeBackRSIValueForUsdt = 0
             activeCoin.moveRSI15mComeBackRSIValueForBtc = 0
-            activeCoin.save()
+        activeCoin.last15RSIUSDT=RSI_15m_USDT
+        activeCoin.last15RSIBTC=RSI_15m_BTC
+        activeCoin.save()
         #islem yap
         if maxOpenTradeControlPassed and cooldownPassed and minOrMaxFivePercChangePassed: 
+            activeCoin=Coin.objects.get(name=firstCoinForBuyParameter)
             nearlyBuyCoins=nearlyBuyCoins,' <br> ',firstCoinToCompareParameter,' => ', fixString(coinDetailsForMailString)
             rsiUsdtDiff = RSI_15m_USDT - activeCoin.moveRSI15mComeBackRSIValueForUsdt
             rsiBtcDiff = RSI_15m_BTC - activeCoin.moveRSI15mComeBackRSIValueForBtc
@@ -717,9 +715,6 @@ def buySignalForRobot15m(firstCoinToCompareParameter,secondCoinToCompareParamete
                 signal_buy=0
         coinDetailsForMail = fixString(coinDetailsForMailString)
         resultMail=resultMail,' <br> ' , coinDetailsForMail
-        activeCoin.last15RSIUSDT=RSI_15m_USDT
-        activeCoin.last15RSIBTC=RSI_15m_BTC
-        activeCoin.save()
     return signal_buy
 
 def buySignalForRobot15mWITHRealMargin(firstCoinToCompareParameter,secondCoinToCompareParameter,firstCoinForBuyParameter,secondCoinForBuyParameter):
@@ -3415,8 +3410,9 @@ def run_robot_15m():
             activeCoin=activeTrade.coin
             sellSignalForRobot15m(activeCoin.name,activeCoin.preferredCompareCoinName,activeCoin.name,'USDT',activeTrade)
         #BUY
-        if getIsStillCheap() is True and (myPreferences.robot15mResultHistoryAsUsdt > myPreferences.lossLimitForRobot15m) and myPreferences.stopBuyingDateFor15m is None:# and isEmaHigherThanBTCPrice==1
+        if getIsStillCheap() is True and (myPreferences.robot15mResultHistoryAsUsdt > myPreferences.lossLimitForRobot15m) and myPreferences.stopBuyingDateFor15m is None and isEmaHigherThanBTCPrice==1:
             coinList=Coin.objects.filter(openToBuy=True,isActive=True,isMargin=False,isUsableForRSI15m=True)
+            print('!!!ALIM KONTROL')
             for activeCoin in coinList:
                 if maxLimitToBuy>boughtCoinsTotalUsdt:
                     buySignalForRobot15m(activeCoin.name,activeCoin.preferredCompareCoinName,activeCoin.name,'USDT')
@@ -3730,13 +3726,14 @@ def run_robots_fast_group():
         myP.temp_isRobotWorkingNow=True
         myP.lastMarginRobotWorkingDate=datetime.now() #timezone.now()
         myP.save()
-    #run_robot_15m_WITH_real_margin()
+    #run_robot_15m_WITH_real_margin() #eskiden kapalıydı
     run_robot_15m()
     run_margin_robot()
     run_margin_BTC_robot()
 
 @app.task
 def run_robots_slow_group():
+    print("run_robots_slow_group - closed for now")
     timet.sleep(2)
     myP=Preferences.objects.all().first()
     if myP.temp_isRobotWorkingNow:
